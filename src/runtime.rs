@@ -51,9 +51,10 @@ pub fn select(request: RuntimeRequest) -> Result<RuntimeKind, String> {
     };
 
     if let Some(runtime) = explicit {
-        return runtime.available().then_some(runtime).ok_or_else(|| {
-            format!("requested runtime {runtime} is unavailable; run datahub-r doctor")
-        });
+        return runtime
+            .available()
+            .then_some(runtime)
+            .ok_or_else(|| format!("requested runtime {runtime} is unavailable; run rdh doctor"));
     }
 
     let hpc = ["LSB_JOBID", "SLURM_JOB_ID", "PBS_JOBID"]
@@ -199,7 +200,7 @@ fn configured_command(
         command.args([
             "-lc",
             "module load apptainer/1.4.2 >/dev/null && exec apptainer \"$@\"",
-            "datahub-r",
+            "rdh",
         ]);
         command
     } else {

@@ -1,7 +1,8 @@
-# datahub-r
+# rdh
 
-`datahub-r` gives you the same ready-to-use R environment on a laptop, workstation, or computing cluster.
-It includes the tools needed to work with CCHMC SQL Server databases and runs through an available container runtime.
+`rdh` (R Data Hub) gives you the same ready-to-use R environment on a laptop, workstation, or computing cluster.
+It includes tools for querying SQL Server databases, saving extracts, and writing data when your account has permission.
+It runs through an available container runtime.
 
 ## Install
 
@@ -11,10 +12,10 @@ First, make sure one supported container runtime is available:
 - Linux: Docker, Podman, or Apptainer
 - CCHMC cluster: Apptainer is detected and its module is loaded automatically
 
-Then install `datahub-r`:
+Then install `rdh`:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/cole-brokamp/datahub-r/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/cole-brokamp/rdh/main/install.sh | sh
 ```
 
 The installer selects the correct executable and asks whether you want to download the container image now.
@@ -29,28 +30,28 @@ export PATH="$HOME/.local/bin:$PATH"
 For unattended installation, use `--pull` to download the image or `--no-pull` to skip it:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/cole-brokamp/datahub-r/main/install.sh \
+curl -fsSL https://raw.githubusercontent.com/cole-brokamp/rdh/main/install.sh \
   | sh -s -- --pull
 ```
 
-You can also download an archive directly from [GitHub Releases](https://github.com/cole-brokamp/datahub-r/releases).
+You can also download an archive directly from [GitHub Releases](https://github.com/cole-brokamp/rdh/releases).
 
 ## Start using it
 
 Start an interactive R session in the current directory:
 
 ```sh
-datahub-r
+rdh
 ```
 
 Run an R script:
 
 ```sh
-datahub-r Rscript analysis.R
+rdh Rscript analysis.R
 ```
 
 Install an R package normally.
-It will remain available the next time you use `datahub-r`:
+It will remain available the next time you use `rdh`:
 
 ```r
 install.packages("ggplot2")
@@ -71,57 +72,70 @@ Protect the file and confirm the connection:
 
 ```sh
 chmod 600 .Renviron
-datahub-r check
+rdh check
 ```
 
 Inside R, connect with:
 
 ```r
-con <- datahub_connect()
+con <- rdh_connect()
 
 results <- DBI::dbGetQuery(con, "SELECT TOP 10 * FROM my_table")
 
 DBI::dbDisconnect(con)
 ```
 
-`datahub_connect()` returns a normal DBI connection and does not disconnect automatically.
+`rdh_connect()` returns a normal DBI connection and does not disconnect automatically.
 
 For another database profile, use matching variable names such as `OMOP_DB_HOST`, `OMOP_DB_NAME`, `OMOP_DB_USERNAME`, and `OMOP_DB_PASSWORD`.
 Select that profile when starting the script:
 
 ```sh
-datahub-r --db OMOP Rscript analysis.R
+rdh --db OMOP Rscript analysis.R
 ```
 
 You can also select it directly in R:
 
 ```r
-con <- datahub_connect("OMOP")
+con <- rdh_connect("OMOP")
 ```
 
 ## Useful commands
 
 | Command | What it does |
 | --- | --- |
-| `datahub-r` | Start interactive R |
-| `datahub-r Rscript analysis.R` | Run an R script |
-| `datahub-r check` | Check R, the database driver, and the selected connection |
-| `datahub-r pull` | Download the container image without starting R |
-| `datahub-r doctor` | Show the detected runtime and local paths |
-| `datahub-r shell` | Start a shell inside the environment |
-| `datahub-r version` | Show the installed version and linked image |
+| `rdh` | Start interactive R |
+| `rdh Rscript analysis.R` | Run an R script |
+| `rdh check` | Check R, the database driver, and the selected connection |
+| `rdh pull` | Download the container image without starting R |
+| `rdh doctor` | Show the detected runtime and local paths |
+| `rdh shell` | Start a shell inside the environment |
+| `rdh version` | Show the installed version and linked image |
 
 Use `--runtime` only when you need to override automatic runtime selection:
 
 ```sh
-datahub-r --runtime apptainer Rscript analysis.R
+rdh --runtime apptainer Rscript analysis.R
 ```
 
 Forward an additional exported environment variable by name with `--env`:
 
 ```sh
 export MY_SETTING=value
-datahub-r --env MY_SETTING Rscript analysis.R
+rdh --env MY_SETTING Rscript analysis.R
+```
+
+## Upgrading from datahub-r
+
+The command is now `rdh`, and the R connection helper is `rdh_connect()`.
+Launcher settings use the `RDH_` prefix instead of `DATAHUB_R_`; database credentials such as `MBHI_DB_HOST` keep their names.
+Install the new command using the instructions above and update scripts to use these names.
+
+Package libraries and image caches now use directories named `rdh`.
+To reuse an existing package library, point `RDH_DATA_DIR` at its previous location, for example:
+
+```sh
+export RDH_DATA_DIR="$HOME/.local/share/datahub-r"
 ```
 
 ## Technical notes
@@ -130,8 +144,8 @@ datahub-r --env MY_SETTING Rscript analysis.R
 - The environment currently uses R 4.6.1, Microsoft ODBC Driver 18, and common data packages including DBI, odbc, dplyr, dbplyr, nanoparquet, bit64, pak, and renv.
 - Released executables are available for macOS and Linux on both AMD64 and ARM64.
 - Each executable is linked to an immutable multi-architecture image digest.
-- Apptainer images are cached under `/scratch/$USER/datahub-r` when available, otherwise under the user cache directory; set `DATAHUB_R_CACHE_DIR` to override it.
-- User-installed R packages persist under the user data directory; set `DATAHUB_R_DATA_DIR` to override it.
+- Apptainer images are cached under `/scratch/$USER/rdh` when available, otherwise under the user cache directory; set `RDH_CACHE_DIR` to override it.
+- User-installed R packages persist under the user data directory; set `RDH_DATA_DIR` to override it.
 - Packages use Posit Public Package Manager by default.
 - `image.conf` defines the R version, base image, and package repository for local and release builds; `pkg.lock` defines required packages and their versions.
 - Database secrets are read from the selected profile's environment variables and are not placed in container command arguments.

@@ -46,7 +46,7 @@ impl Cli {
     pub fn runtime_request(&self) -> Result<RuntimeRequest, String> {
         match self.runtime {
             Some(runtime) => Ok(runtime),
-            None => std::env::var("DATAHUB_R_RUNTIME").map_or(Ok(RuntimeRequest::Auto), |value| {
+            None => std::env::var("RDH_RUNTIME").map_or(Ok(RuntimeRequest::Auto), |value| {
                 RuntimeRequest::parse(&value)
             }),
         }
@@ -54,7 +54,7 @@ impl Cli {
 
     pub fn database_profile(&self) -> Result<String, String> {
         let profile = self.database_profile.clone().unwrap_or_else(|| {
-            std::env::var("DATAHUB_R_DB_PROFILE").unwrap_or_else(|_| "MBHI".to_owned())
+            std::env::var("RDH_DB_PROFILE").unwrap_or_else(|_| "MBHI".to_owned())
         });
         normalize_profile(&profile)
     }
@@ -119,7 +119,7 @@ pub fn parse(arguments: impl IntoIterator<Item = OsString>) -> Result<Cli, Strin
         Some("check") => no_arguments(
             Action::Execute(vec![
                 OsString::from("Rscript"),
-                OsString::from("/opt/datahub-r/check.R"),
+                OsString::from("/opt/rdh/check.R"),
             ]),
             remaining,
             "check",
@@ -140,9 +140,7 @@ pub fn parse(arguments: impl IntoIterator<Item = OsString>) -> Result<Cli, Strin
             Action::Execute(payload)
         }
         Some(value) => {
-            return Err(format!(
-                "unknown command {value:?}; run datahub-r help for usage"
-            ));
+            return Err(format!("unknown command {value:?}; run rdh help for usage"));
         }
     };
 

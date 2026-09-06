@@ -19,5 +19,5 @@ dist_dir="$3"
 mkdir -p "$dist_dir"
 temporary_dir="$(mktemp -d)"
 trap 'rm -rf -- "$temporary_dir"' EXIT HUP INT TERM
-install -m 0755 "$binary" "$temporary_dir/datahub-r"
-tar -czf "$dist_dir/datahub-r-$target.tar.gz" -C "$temporary_dir" datahub-r
+install -m 0755 "$binary" "$temporary_dir/rdh"
+tar -czf "$dist_dir/rdh-$target.tar.gz" -C "$temporary_dir" rdh

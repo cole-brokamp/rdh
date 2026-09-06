@@ -2,14 +2,14 @@
 
 set -euo pipefail
 
-image="${1:-datahub-r:local}"
+image="${1:-rdh:local}"
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 case "$(uname -m)" in
   arm64|aarch64) native_platform="linux/arm64" ;;
   x86_64|amd64) native_platform="linux/amd64" ;;
   *) echo "unsupported host architecture: $(uname -m)" >&2; exit 1 ;;
 esac
-platform="${DATAHUB_R_PLATFORM:-$native_platform}"
+platform="${RDH_PLATFORM:-$native_platform}"
 test_root="$(mktemp -d)"
 trap 'rm -rf -- "$test_root"' EXIT HUP INT TERM
 
@@ -24,14 +24,14 @@ mkdir -p \
   "$profile_override_dir/custom-library"
 
 cat > "$project_dir/.Renviron" <<'EOF_RENVIRON'
-DATAHUB_TEST_RENVIRON=loaded
+RDH_TEST_RENVIRON=loaded
 MBHI_DB_HOST=renviron-host
 MBHI_DB_USERNAME=renviron-user
 MBHI_DB_PASSWORD=renviron-password
 EOF_RENVIRON
 
 cat > "$project_dir/.Rprofile" <<'EOF_RPROFILE'
-options(datahub.test.rprofile = "loaded")
+options(rdh.test.rprofile = "loaded")
 EOF_RPROFILE
 
 cat > "$profile_override_dir/.Rprofile" <<'EOF_OVERRIDE_RPROFILE'
@@ -41,9 +41,9 @@ EOF_OVERRIDE_RPROFILE
 run_rscript() {
   container run --rm \
     --platform "$platform" \
-    --env HOME=/home/datahub-test \
-    --env DATAHUB_R_DATA_DIR=/home/datahub-test/custom-data \
-    --mount "type=bind,source=$home_dir,target=/home/datahub-test" \
+    --env HOME=/home/rdh-test \
+    --env RDH_DATA_DIR=/home/rdh-test/custom-data \
+    --mount "type=bind,source=$home_dir,target=/home/rdh-test" \
     --mount "type=bind,source=$project_dir,target=/project" \
     --workdir /project \
     --entrypoint Rscript \
@@ -54,11 +54,11 @@ run_rscript() {
 run_export_only() {
   container run --rm \
     --platform "$platform" \
-    --env HOME=/home/datahub-test \
+    --env HOME=/home/rdh-test \
     --env MBHI_DB_HOST=export-host \
     --env MBHI_DB_USERNAME=export-user \
     --env MBHI_DB_PASSWORD=export-password \
-    --mount "type=bind,source=$home_dir,target=/home/datahub-test" \
+    --mount "type=bind,source=$home_dir,target=/home/rdh-test" \
     --mount "type=bind,source=$export_only_dir,target=/export-only" \
     --workdir /export-only \
     --entrypoint Rscript \
@@ -68,35 +68,35 @@ run_export_only() {
 
 container run --rm \
   --platform "$platform" \
-  --env HOME=/home/datahub-test \
-  --mount "type=bind,source=$home_dir,target=/home/datahub-test" \
+  --env HOME=/home/rdh-test \
+  --mount "type=bind,source=$home_dir,target=/home/rdh-test" \
   --entrypoint Rscript \
   "$image" \
-  /opt/datahub-r/smoke.R
+  /opt/rdh/smoke.R
 
 container run --rm \
   --platform "$platform" \
-  --env HOME=/home/datahub-test \
+  --env HOME=/home/rdh-test \
   --env MBHI_DB_HOST=export-host \
   --env MBHI_DB_USERNAME=export-user \
   --env MBHI_DB_PASSWORD=export-password \
-  --mount "type=bind,source=$home_dir,target=/home/datahub-test" \
+  --mount "type=bind,source=$home_dir,target=/home/rdh-test" \
   --mount "type=bind,source=$project_dir,target=/project" \
   --workdir /project \
   --entrypoint Rscript \
   "$image" \
   -e '
   stopifnot(
-    identical(Sys.getenv("DATAHUB_TEST_RENVIRON"), "loaded"),
+    identical(Sys.getenv("RDH_TEST_RENVIRON"), "loaded"),
     identical(Sys.getenv("MBHI_DB_HOST"), "renviron-host"),
     identical(Sys.getenv("MBHI_DB_USERNAME"), "renviron-user"),
     identical(Sys.getenv("MBHI_DB_PASSWORD"), "renviron-password"),
-    identical(getOption("datahub.test.rprofile"), "loaded"),
+    identical(getOption("rdh.test.rprofile"), "loaded"),
     identical(
       unname(getOption("repos")[["CRAN"]]),
-      readRDS("/opt/datahub-r/image-config.rds")$ppm_repo
+      readRDS("/opt/rdh/image-config.rds")$ppm_repo
     ),
-    startsWith(.libPaths()[[1L]], path.expand("~/.local/share/datahub-r/"))
+    startsWith(.libPaths()[[1L]], path.expand("~/.local/share/rdh/"))
   )
 '
 
@@ -109,7 +109,7 @@ run_export_only -e '
 '
 
 run_rscript -e 'install.packages("fortunes", lib = .libPaths()[[1L]], dependencies = NA)'
-run_rscript -e 'stopifnot(startsWith(.libPaths()[[1L]], "/home/datahub-test/custom-data/"))'
+run_rscript -e 'stopifnot(startsWith(.libPaths()[[1L]], "/home/rdh-test/custom-data/"))'
 run_rscript -e '
   stopifnot(
     requireNamespace("fortunes", quietly = TRUE),
@@ -120,8 +120,8 @@ run_rscript -e '
 
 container run --rm \
   --platform "$platform" \
-  --env HOME=/home/datahub-test \
-  --mount "type=bind,source=$home_dir,target=/home/datahub-test" \
+  --env HOME=/home/rdh-test \
+  --mount "type=bind,source=$home_dir,target=/home/rdh-test" \
   --mount "type=bind,source=$profile_override_dir,target=/profile-override" \
   --workdir /profile-override \
   --entrypoint Rscript \
@@ -137,8 +137,8 @@ run_rscript -e '
 
 container run --rm \
   --platform "$platform" \
-  --env HOME=/home/datahub-test \
-  --mount "type=bind,source=$home_dir,target=/home/datahub-test" \
+  --env HOME=/home/rdh-test \
+  --mount "type=bind,source=$home_dir,target=/home/rdh-test" \
   --mount "type=bind,source=$repo_dir,target=/source" \
   --entrypoint Rscript \
   "$image" \
@@ -146,11 +146,11 @@ container run --rm \
 
 if container run --rm \
   --platform "$platform" \
-  --env HOME=/home/datahub-test \
-  --mount "type=bind,source=$home_dir,target=/home/datahub-test" \
+  --env HOME=/home/rdh-test \
+  --mount "type=bind,source=$home_dir,target=/home/rdh-test" \
   --entrypoint /usr/bin/find \
   "$image" \
-  /opt/datahub-r -name .Renviron -print | grep -q .; then
+  /opt/rdh -name .Renviron -print | grep -q .; then
   echo "a .Renviron file was found in the image" >&2
   exit 1
 fi

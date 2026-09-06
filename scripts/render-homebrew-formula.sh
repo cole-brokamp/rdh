@@ -22,10 +22,10 @@ checksum() {
   fi
 }
 
-macos_arm_sha="$(checksum "$dist_dir/datahub-r-aarch64-apple-darwin.tar.gz")"
-macos_intel_sha="$(checksum "$dist_dir/datahub-r-x86_64-apple-darwin.tar.gz")"
-linux_arm_sha="$(checksum "$dist_dir/datahub-r-aarch64-unknown-linux-musl.tar.gz")"
-linux_intel_sha="$(checksum "$dist_dir/datahub-r-x86_64-unknown-linux-musl.tar.gz")"
+macos_arm_sha="$(checksum "$dist_dir/rdh-aarch64-apple-darwin.tar.gz")"
+macos_intel_sha="$(checksum "$dist_dir/rdh-x86_64-apple-darwin.tar.gz")"
+linux_arm_sha="$(checksum "$dist_dir/rdh-aarch64-unknown-linux-musl.tar.gz")"
+linux_intel_sha="$(checksum "$dist_dir/rdh-x86_64-unknown-linux-musl.tar.gz")"
 
 mkdir -p "$(dirname "$output")"
 sed \
@@ -34,4 +34,4 @@ sed \
   -e "s/@MACOS_INTEL_SHA256@/$macos_intel_sha/g" \
   -e "s/@LINUX_ARM_SHA256@/$linux_arm_sha/g" \
   -e "s/@LINUX_INTEL_SHA256@/$linux_intel_sha/g" \
-  "$repo_dir/packaging/homebrew/datahub-r.rb.in" > "$output"
+  "$repo_dir/packaging/homebrew/rdh.rb.in" > "$output"

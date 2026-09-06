@@ -1,11 +1,11 @@
 [package]
-name = "datahub-r"
+name = "rdh"
 # The public zero-padded CalVer is read from VERSION because it is not SemVer.
 version = "0.0.0"
 edition = "2024"
 publish = false
 build = "build.rs"
-description = "Portable launcher for the CCHMC datahub-r environment"
+description = "Portable R environment for database work"
 
 [dependencies]
 

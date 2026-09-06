@@ -81,7 +81,7 @@ jobs:
             BASE_IMAGE=${{ needs.validate.outputs.base_image }}
             R_VERSION=${{ needs.validate.outputs.r_version }}
             PPM_REPO=${{ needs.validate.outputs.ppm_repo }}
-            DATAHUB_R_VERSION=${{ needs.validate.outputs.version }}
+            RDH_VERSION=${{ needs.validate.outputs.version }}
             BUILD_DATE=${{ needs.validate.outputs.build_date }}
             VCS_REF=${{ github.sha }}
             PACKAGE_LOCK_SHA256=${{ needs.validate.outputs.lock_sha }}
@@ -115,7 +115,7 @@ jobs:
             target: aarch64-apple-darwin
     runs-on: ${{ matrix.runner }}
     env:
-      DATAHUB_R_RELEASE_IMAGE: docker://ghcr.io/${{ github.repository }}@${{ needs.image.outputs.digest }}
+      RDH_RELEASE_IMAGE: docker://ghcr.io/${{ github.repository }}@${{ needs.image.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
       - name: Install Linux linker
@@ -130,14 +130,14 @@ jobs:
       - name: Verify embedded release
         shell: bash
         run: |
-          output="$(target/${{ matrix.target }}/release/datahub-r version)"
-          grep -F "datahub-r ${{ needs.validate.outputs.version }}" <<< "$output"
-          grep -F "release image: $DATAHUB_R_RELEASE_IMAGE" <<< "$output"
+          output="$(target/${{ matrix.target }}/release/rdh version)"
+          grep -F "rdh ${{ needs.validate.outputs.version }}" <<< "$output"
+          grep -F "release image: $RDH_RELEASE_IMAGE" <<< "$output"
       - name: Package release executable
-        run: scripts/package-release.sh "target/${{ matrix.target }}/release/datahub-r" "${{ matrix.target }}" dist
+        run: scripts/package-release.sh "target/${{ matrix.target }}/release/rdh" "${{ matrix.target }}" dist
       - uses: actions/upload-artifact@v4
         with:
-          name: datahub-r-${{ matrix.target }}
+          name: rdh-${{ matrix.target }}
           path: dist/*.tar.gz
           if-no-files-found: error
 
@@ -150,7 +150,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          pattern: datahub-r-*
+          pattern: rdh-*
           path: dist
           merge-multiple: true
       - name: Create checksums and Homebrew formula
@@ -160,7 +160,7 @@ jobs:
             | sort -z \
             | xargs -0 sha256sum \
             | sed 's#  dist/#  #' > dist/SHA256SUMS
-          scripts/render-homebrew-formula.sh dist dist/datahub-r.rb
+          scripts/render-homebrew-formula.sh dist dist/rdh.rb
           cp install.sh dist/install.sh
       - name: Publish immutable GitHub release
         env:
@@ -170,7 +170,7 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --generate-notes \
-            --title "datahub-r ${{ needs.validate.outputs.version }}"
+            --title "rdh ${{ needs.validate.outputs.version }}"
 
   homebrew:
     needs: [publish]
@@ -197,20 +197,20 @@ jobs:
           mkdir -p formula
           gh release download "$GITHUB_REF_NAME" \
             --repo "$GITHUB_REPOSITORY" \
-            --pattern datahub-r.rb \
+            --pattern rdh.rb \
             --dir formula
       - name: Update tap
         if: env.TAP_TOKEN != ''
         working-directory: tap
         run: |
           set -euo pipefail
-          install -D -m 0644 ../formula/datahub-r.rb Formula/datahub-r.rb
-          git add Formula/datahub-r.rb
+          install -D -m 0644 ../formula/rdh.rb Formula/rdh.rb
+          git add Formula/rdh.rb
           if git diff --cached --quiet; then
             echo "Homebrew formula is already current."
           else
             git config user.name github-actions[bot]
             git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-            git commit -m "datahub-r $GITHUB_REF_NAME"
+            git commit -m "rdh $GITHUB_REF_NAME"
             git push
           fi

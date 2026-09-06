@@ -3,7 +3,7 @@
 set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-binary="${1:-$repo_dir/target/debug/datahub-r}"
+binary="${1:-$repo_dir/target/debug/rdh}"
 [[ "$binary" = /* ]] || binary="$repo_dir/$binary"
 [[ -x "$binary" ]] || { echo "Rust CLI is not executable: $binary" >&2; exit 1; }
 
@@ -13,7 +13,7 @@ fixture_repo="$test_root/repository"
 dist_dir="$test_root/dist"
 mkdir -p "$fixture_repo/scripts" "$fixture_repo/packaging/homebrew" "$dist_dir"
 cp "$repo_dir/scripts/render-homebrew-formula.sh" "$fixture_repo/scripts/"
-cp "$repo_dir/packaging/homebrew/datahub-r.rb.in" "$fixture_repo/packaging/homebrew/"
+cp "$repo_dir/packaging/homebrew/rdh.rb.in" "$fixture_repo/packaging/homebrew/"
 release_version="$(sed 's/-dev$//' "$repo_dir/VERSION")"
 printf '%s\n' "$release_version" > "$fixture_repo/VERSION"
 
@@ -25,16 +25,16 @@ for target in \
   "$repo_dir/scripts/package-release.sh" "$binary" "$target" "$dist_dir"
 done
 
-"$fixture_repo/scripts/render-homebrew-formula.sh" "$dist_dir" "$dist_dir/datahub-r.rb"
-ruby -c "$dist_dir/datahub-r.rb" >/dev/null
-if rg -q '@[A-Z0-9_]+@' "$dist_dir/datahub-r.rb"; then
+"$fixture_repo/scripts/render-homebrew-formula.sh" "$dist_dir" "$dist_dir/rdh.rb"
+ruby -c "$dist_dir/rdh.rb" >/dev/null
+if rg -q '@[A-Z0-9_]+@' "$dist_dir/rdh.rb"; then
   echo "the rendered Homebrew formula contains an unresolved placeholder" >&2
   exit 1
 fi
 
-rg -Fq "version \"$(cat "$fixture_repo/VERSION")\"" "$dist_dir/datahub-r.rb"
+rg -Fq "version \"$(cat "$fixture_repo/VERSION")\"" "$dist_dir/rdh.rb"
 for archive in "$dist_dir"/*.tar.gz; do
-  tar -tzf "$archive" | rg -Fxq datahub-r
+  tar -tzf "$archive" | rg -Fxq rdh
 done
 
 printf '%s-dev\n' "$release_version" > "$fixture_repo/VERSION"

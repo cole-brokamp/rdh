@@ -1,15 +1,15 @@
-ppm_repo <- Sys.getenv("DATAHUB_R_PPM_REPO", unset = "")
+ppm_repo <- Sys.getenv("RDH_PPM_REPO", unset = "")
 site_library <- Sys.getenv("R_LIBS_SITE", unset = "")
 
 if (!nzchar(ppm_repo) || !nzchar(site_library)) {
-  stop("DATAHUB_R_PPM_REPO and R_LIBS_SITE must be set", call. = FALSE)
+  stop("RDH_PPM_REPO and R_LIBS_SITE must be set", call. = FALSE)
 }
 
 options(repos = c(CRAN = ppm_repo))
 
 # pak carries a dependency-free JSON reader, so the committed lock can be
 # consumed before any of the lock's supporting packages are installed.
-lock <- pak:::json$parse_file("/opt/datahub-r/pkg.lock")
+lock <- pak:::json$parse_file("/opt/rdh/pkg.lock")
 locked <- lock$packages
 
 `%||%` <- function(lhs, rhs) {
@@ -72,7 +72,7 @@ manifest <- data.frame(
   stringsAsFactors = FALSE
 )
 manifest <- manifest[order(manifest$Package), , drop = FALSE]
-write.csv(manifest, "/opt/datahub-r/installed-packages.csv", row.names = FALSE)
+write.csv(manifest, "/opt/rdh/installed-packages.csv", row.names = FALSE)
 
 # Runtime checks and startup consume the same settings used to build the image.
 direct <- vapply(locked, function(package) isTRUE(package$direct), logical(1L))
@@ -82,6 +82,6 @@ saveRDS(
     ppm_repo = ppm_repo,
     packages = package_names[direct]
   ),
-  "/opt/datahub-r/image-config.rds",
+  "/opt/rdh/image-config.rds",
   version = 2
 )

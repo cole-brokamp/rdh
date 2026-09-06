@@ -1,5 +1,5 @@
 local({
-  image_config <- readRDS("/opt/datahub-r/image-config.rds")
+  image_config <- readRDS("/opt/rdh/image-config.rds")
 
   options(
     repos = c(CRAN = image_config$ppm_repo),
@@ -18,8 +18,8 @@ local({
   r_minor <- strsplit(R.version[["minor"]], ".", fixed = TRUE)[[1L]][1L]
   r_major_minor <- paste(R.version[["major"]], r_minor, sep = ".")
   data_root <- Sys.getenv(
-    "DATAHUB_R_DATA_DIR",
-    unset = path.expand("~/.local/share/datahub-r")
+    "RDH_DATA_DIR",
+    unset = path.expand("~/.local/share/rdh")
   )
   user_library <- file.path(
     data_root,
@@ -33,15 +33,15 @@ local({
   }
 
   if (!dir.exists(user_library)) {
-    stop("datahub-r could not create its user library: ", user_library)
+    stop("rdh could not create its user library: ", user_library)
   }
 
   if (file.access(user_library, mode = 2L) != 0L) {
-    stop("datahub-r user library is not writable: ", user_library)
+    stop("rdh user library is not writable: ", user_library)
   }
 
   Sys.setenv(R_LIBS_USER = user_library)
   .libPaths(unique(c(user_library, .libPaths())))
 })
 
-sys.source("/opt/datahub-r/database.R", envir = globalenv())
+sys.source("/opt/rdh/database.R", envir = globalenv())

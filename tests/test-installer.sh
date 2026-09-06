@@ -3,7 +3,7 @@
 set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-binary="${1:-$repo_dir/target/debug/datahub-r}"
+binary="${1:-$repo_dir/target/debug/rdh}"
 [[ "$binary" = /* ]] || binary="$repo_dir/$binary"
 [[ -x "$binary" ]] || { echo "Rust CLI is not executable: $binary" >&2; exit 1; }
 
@@ -30,7 +30,7 @@ mkdir -p "$release_dir"
 mkdir -p "$fake_bin"
 
 "$repo_dir/scripts/package-release.sh" "$binary" "$target" "$release_dir"
-archive="datahub-r-$target.tar.gz"
+archive="rdh-$target.tar.gz"
 if command -v sha256sum >/dev/null 2>&1; then
   hash="$(sha256sum "$release_dir/$archive" | awk '{ print $1 }')"
 else
@@ -38,28 +38,28 @@ else
 fi
 printf '%s  %s\n' "$hash" "$archive" > "$release_dir/SHA256SUMS"
 
-DATAHUB_R_RELEASE_BASE_URL="file://$release_dir" \
+RDH_RELEASE_BASE_URL="file://$release_dir" \
   sh "$repo_dir/install.sh" --install-dir "$install_dir" >/dev/null
 
-[[ -x "$install_dir/datahub-r" ]]
-"$install_dir/datahub-r" version | rg -Fq "datahub-r $(tr -d '\r\n' < "$repo_dir/VERSION")"
+[[ -x "$install_dir/rdh" ]]
+"$install_dir/rdh" version | rg -Fq "rdh $(tr -d '\r\n' < "$repo_dir/VERSION")"
 
 cat > "$fake_bin/container" <<'FAKE_CONTAINER'
 #!/usr/bin/env bash
 set -euo pipefail
 if [[ "${1:-}" == "image" && "${2:-}" == "pull" ]]; then
-  printf 'container-pull\n' > "$DATAHUB_TEST_PULL_LOG"
+  printf 'container-pull\n' > "$RDH_TEST_PULL_LOG"
 fi
 FAKE_CONTAINER
 chmod +x "$fake_bin/container"
 
 PATH="$fake_bin:$PATH" \
-  DATAHUB_TEST_PULL_LOG="$pull_log" \
-  DATAHUB_R_IMAGE="docker://example.invalid/datahub-r:test" \
-  DATAHUB_R_RUNTIME="container" \
-  DATAHUB_R_RELEASE_BASE_URL="file://$release_dir" \
+  RDH_TEST_PULL_LOG="$pull_log" \
+  RDH_IMAGE="docker://example.invalid/rdh:test" \
+  RDH_RUNTIME="container" \
+  RDH_RELEASE_BASE_URL="file://$release_dir" \
   sh "$repo_dir/install.sh" --install-dir "$pull_install_dir" --pull >/dev/null
 
-[[ -x "$pull_install_dir/datahub-r" ]]
+[[ -x "$pull_install_dir/rdh" ]]
 rg -Fxq 'container-pull' "$pull_log"
 echo "installer checks passed"

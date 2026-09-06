@@ -1,12 +1,12 @@
 #!/usr/bin/env Rscript
 
-source("/opt/datahub-r/database.R", local = TRUE)
+source("/opt/rdh/database.R", local = TRUE)
 
-datahub_r_check <- function(profile = Sys.getenv(
-  "DATAHUB_R_DB_PROFILE",
+rdh_check <- function(profile = Sys.getenv(
+  "RDH_DB_PROFILE",
   unset = "MBHI"
 )) {
-  image_config <- readRDS("/opt/datahub-r/image-config.rds")
+  image_config <- readRDS("/opt/rdh/image-config.rds")
   required_packages <- image_config$packages
 
   unavailable <- required_packages[
@@ -38,7 +38,7 @@ datahub_r_check <- function(profile = Sys.getenv(
     stop("ODBC Driver 18 for SQL Server is not registered")
   }
 
-  con <- datahub_connect(profile)
+  con <- rdh_connect(profile)
   on.exit(DBI::dbDisconnect(con), add = TRUE)
   profile <- toupper(profile)
 
@@ -63,5 +63,5 @@ datahub_r_check <- function(profile = Sys.getenv(
 }
 
 if (sys.nframe() == 0L) {
-  datahub_r_check()
+  rdh_check()
 }

@@ -24,9 +24,9 @@ jobs:
         run: |
           cargo build --locked
           bash tests/test-static.sh
-          bash tests/test-cli.sh target/debug/datahub-r
-          bash tests/test-installer.sh target/debug/datahub-r
-          bash tests/test-release-packaging.sh target/debug/datahub-r
+          bash tests/test-cli.sh target/debug/rdh
+          bash tests/test-installer.sh target/debug/rdh
+          bash tests/test-release-packaging.sh target/debug/rdh
 
   native-builds:
     name: ${{ matrix.target }}
@@ -55,4 +55,4 @@ jobs:
       - name: Build native executable
         run: cargo build --locked --release --target "${{ matrix.target }}"
       - name: Exercise executable
-        run: "target/${{ matrix.target }}/release/datahub-r version"
+        run: "target/${{ matrix.target }}/release/rdh version"

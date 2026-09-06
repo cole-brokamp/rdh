@@ -12,13 +12,13 @@ use std::process::ExitStatus;
 use std::thread;
 use std::time::{Duration, Instant};
 
-const VERSION: &str = env!("DATAHUB_R_VERSION");
-const RELEASE_IMAGE: &str = env!("DATAHUB_R_RELEASE_IMAGE");
-const CONTAINER_HOME: &str = "/home/datahub-r";
-const CONTAINER_DATA_DIR: &str = "/home/datahub-r/.local/share/datahub-r";
+const VERSION: &str = env!("RDH_VERSION");
+const RELEASE_IMAGE: &str = env!("RDH_RELEASE_IMAGE");
+const CONTAINER_HOME: &str = "/home/rdh";
+const CONTAINER_DATA_DIR: &str = "/home/rdh/.local/share/rdh";
 
 const HELP: &str = r#"Usage:
-  datahub-r [--runtime NAME] [--db PROFILE] [--env NAME ...] [COMMAND]
+  rdh [--runtime NAME] [--db PROFILE] [--env NAME ...] [COMMAND]
 
 Commands:
   R [arguments]          Start R or pass R arguments (the default).
@@ -32,14 +32,14 @@ Commands:
 
 Runtime selection:
   --runtime auto|apptainer|container|docker|podman
-  DATAHUB_R_RUNTIME      Default runtime when --runtime is omitted.
+  RDH_RUNTIME      Default runtime when --runtime is omitted.
 
 Configuration:
-  DATAHUB_R_IMAGE        Override the digest-pinned release image or use a local SIF.
-  DATAHUB_R_PLATFORM     Override the OCI platform, for example linux/amd64.
-  DATAHUB_R_CACHE_DIR    Override the Apptainer image and conversion cache.
-  DATAHUB_R_DATA_DIR     Override the persistent host package-library directory.
-  DATAHUB_R_DB_PROFILE   Database profile selected by --db (default: MBHI).
+  RDH_IMAGE        Override the digest-pinned release image or use a local SIF.
+  RDH_PLATFORM     Override the OCI platform, for example linux/amd64.
+  RDH_CACHE_DIR    Override the Apptainer image and conversion cache.
+  RDH_DATA_DIR     Override the persistent host package-library directory.
+  RDH_DB_PROFILE   Database profile selected by --db (default: MBHI).
 
 The selected <PROFILE>_DB_HOST, <PROFILE>_DB_NAME, <PROFILE>_DB_USERNAME,
 and <PROFILE>_DB_PASSWORD variables are forwarded by name. Additional exported
@@ -51,7 +51,7 @@ fn main() {
     match run() {
         Ok(code) => std::process::exit(code),
         Err(error) => {
-            eprintln!("datahub-r: {error}");
+            eprintln!("rdh: {error}");
             std::process::exit(1);
         }
     }
@@ -98,13 +98,13 @@ fn run() -> Result<i32, String> {
 }
 
 fn print_version() {
-    println!("datahub-r {VERSION}");
+    println!("rdh {VERSION}");
     if RELEASE_IMAGE.contains("REPLACE_AT_RELEASE") {
         println!("release image: unpublished");
     } else {
         println!("release image: {RELEASE_IMAGE}");
     }
-    if let Some(image) = env::var_os("DATAHUB_R_IMAGE") {
+    if let Some(image) = env::var_os("RDH_IMAGE") {
         println!("image override: {}", image.to_string_lossy());
     }
 }
@@ -114,7 +114,7 @@ fn doctor(request: RuntimeRequest) -> Result<bool, String> {
     println!("host: {}/{}", env::consts::OS, env::consts::ARCH);
     println!(
         "platform override: {}",
-        env::var("DATAHUB_R_PLATFORM").unwrap_or_else(|_| "automatic".to_owned())
+        env::var("RDH_PLATFORM").unwrap_or_else(|_| "automatic".to_owned())
     );
     println!("persistent data: {}", data_root()?.display());
     println!("Apptainer cache: {}", cache_root()?.display());
@@ -147,21 +147,21 @@ fn doctor(request: RuntimeRequest) -> Result<bool, String> {
 }
 
 fn required_image() -> Result<String, String> {
-    let image = env::var("DATAHUB_R_IMAGE").unwrap_or_else(|_| RELEASE_IMAGE.to_owned());
+    let image = env::var("RDH_IMAGE").unwrap_or_else(|_| RELEASE_IMAGE.to_owned());
     if image.contains("REPLACE_AT_RELEASE") {
         return Err(
-            "no release image is published; set DATAHUB_R_IMAGE to a local image or SIF".to_owned(),
+            "no release image is published; set RDH_IMAGE to a local image or SIF".to_owned(),
         );
     }
     if image.trim().is_empty() {
-        return Err("DATAHUB_R_IMAGE is empty".to_owned());
+        return Err("RDH_IMAGE is empty".to_owned());
     }
     Ok(image)
 }
 
 fn forwarded_environment(cli: &Cli) -> Result<Vec<(String, OsString)>, String> {
     let database_profile = cli.database_profile()?;
-    let mut names = vec!["DATAHUB_R_DB_PROFILE".to_owned()];
+    let mut names = vec!["RDH_DB_PROFILE".to_owned()];
     for suffix in ["HOST", "NAME", "USERNAME", "PASSWORD"] {
         let name = format!("{database_profile}_DB_{suffix}");
         if env::var_os(&name).is_some() {
@@ -176,7 +176,7 @@ fn forwarded_environment(cli: &Cli) -> Result<Vec<(String, OsString)>, String> {
 
     let mut forwarded = Vec::with_capacity(names.len());
     for name in names {
-        let value = if name == "DATAHUB_R_DB_PROFILE" {
+        let value = if name == "RDH_DB_PROFILE" {
             OsString::from(&database_profile)
         } else {
             env::var_os(&name)
@@ -257,13 +257,13 @@ fn prepare_apptainer_image(image: &str) -> Result<PathBuf, String> {
 
     let key = cache_key(&reference);
     let architecture = env::consts::ARCH;
-    let image_path = image_dir.join(format!("datahub-r-{VERSION}-{architecture}-{key}.sif"));
+    let image_path = image_dir.join(format!("rdh-{VERSION}-{architecture}-{key}.sif"));
     if image_path.is_file() {
         return Ok(image_path);
     }
 
     let lock_path = lock_dir.join(format!("{architecture}-{key}.lock"));
-    let timeout = env::var("DATAHUB_R_LOCK_TIMEOUT_SECONDS")
+    let timeout = env::var("RDH_LOCK_TIMEOUT_SECONDS")
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .unwrap_or(300);
@@ -298,7 +298,7 @@ fn prepare_apptainer_image(image: &str) -> Result<PathBuf, String> {
     }
 
     let partial = partial_dir.join(format!(
-        "datahub-r-{VERSION}-{architecture}-{key}.partial.{}.sif",
+        "rdh-{VERSION}-{architecture}-{key}.partial.{}.sif",
         std::process::id()
     ));
     let arguments = vec![
@@ -321,7 +321,7 @@ fn prepare_apptainer_image(image: &str) -> Result<PathBuf, String> {
         RuntimeKind::Apptainer,
         &arguments,
         &environment,
-        "datahub-r: downloading and converting image",
+        "rdh: downloading and converting image",
     )?;
     if let Err(error) = ensure_success(status, RuntimeKind::Apptainer, "pull") {
         let _ = fs::remove_file(&partial);
@@ -374,7 +374,7 @@ fn run_apptainer(
         environment.push((format!("APPTAINERENV_{name}"), value.clone()));
     }
     environment.push((
-        "APPTAINERENV_DATAHUB_R_DATA_DIR".to_owned(),
+        "APPTAINERENV_RDH_DATA_DIR".to_owned(),
         OsString::from(CONTAINER_DATA_DIR),
     ));
     runtime::run(RuntimeKind::Apptainer, &arguments, &environment)
@@ -399,7 +399,7 @@ fn run_oci(
         arguments.push(OsString::from("--tty"));
     }
 
-    if let Ok(platform) = env::var("DATAHUB_R_PLATFORM")
+    if let Ok(platform) = env::var("RDH_PLATFORM")
         && !platform.is_empty()
     {
         arguments.extend(os_strings(&["--platform", &platform]));
@@ -431,7 +431,7 @@ fn run_oci(
     }
     arguments.extend(os_strings(&[
         "--env",
-        &format!("DATAHUB_R_DATA_DIR={CONTAINER_DATA_DIR}"),
+        &format!("RDH_DATA_DIR={CONTAINER_DATA_DIR}"),
     ]));
     arguments.extend(os_strings(&[
         "--volume",
@@ -458,17 +458,17 @@ fn canonical_working_directory() -> Result<PathBuf, String> {
 }
 
 fn data_root() -> Result<PathBuf, String> {
-    if let Some(path) = env::var_os("DATAHUB_R_DATA_DIR") {
+    if let Some(path) = env::var_os("RDH_DATA_DIR") {
         return Ok(PathBuf::from(path));
     }
     if let Some(path) = env::var_os("XDG_DATA_HOME") {
-        return Ok(PathBuf::from(path).join("datahub-r"));
+        return Ok(PathBuf::from(path).join("rdh"));
     }
-    home_directory().map(|home| home.join(".local/share/datahub-r"))
+    home_directory().map(|home| home.join(".local/share/rdh"))
 }
 
 fn cache_root() -> Result<PathBuf, String> {
-    if let Some(path) = env::var_os("DATAHUB_R_CACHE_DIR") {
+    if let Some(path) = env::var_os("RDH_CACHE_DIR") {
         return Ok(PathBuf::from(path));
     }
 
@@ -477,14 +477,14 @@ fn cache_root() -> Result<PathBuf, String> {
         if scratch.is_dir()
             && !fs::metadata(&scratch).is_ok_and(|metadata| metadata.permissions().readonly())
         {
-            return Ok(scratch.join("datahub-r"));
+            return Ok(scratch.join("rdh"));
         }
     }
 
     if let Some(path) = env::var_os("XDG_CACHE_HOME") {
-        return Ok(PathBuf::from(path).join("datahub-r"));
+        return Ok(PathBuf::from(path).join("rdh"));
     }
-    home_directory().map(|home| home.join(".cache/datahub-r"))
+    home_directory().map(|home| home.join(".cache/rdh"))
 }
 
 fn home_directory() -> Result<PathBuf, String> {
@@ -559,14 +559,14 @@ mod tests {
     #[test]
     fn strips_docker_transport_for_oci_runtimes() {
         assert_eq!(
-            oci_reference("docker://ghcr.io/cole-brokamp/datahub-r@sha256:abc").unwrap(),
-            "ghcr.io/cole-brokamp/datahub-r@sha256:abc"
+            oci_reference("docker://ghcr.io/cole-brokamp/rdh@sha256:abc").unwrap(),
+            "ghcr.io/cole-brokamp/rdh@sha256:abc"
         );
     }
 
     #[test]
     fn leaves_plain_oci_references_unchanged() {
-        assert_eq!(oci_reference("datahub-r:local").unwrap(), "datahub-r:local");
+        assert_eq!(oci_reference("rdh:local").unwrap(), "rdh:local");
     }
 
     #[test]
@@ -575,7 +575,7 @@ mod tests {
             cache_key("docker://example/image@sha256:0123456789abcdef0123456789abcdef"),
             "0123456789abcdef01234567"
         );
-        assert_eq!(cache_key("datahub-r:local"), cache_key("datahub-r:local"));
+        assert_eq!(cache_key("rdh:local"), cache_key("rdh:local"));
     }
 
     #[test]

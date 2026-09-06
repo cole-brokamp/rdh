@@ -1,4 +1,4 @@
-datahub_connect <- local({
+rdh_connect <- local({
   database_config <- function(profile) {
     if (
       length(profile) != 1L ||
@@ -33,7 +33,7 @@ datahub_connect <- local({
     )
   }
 
-  function(profile = Sys.getenv("DATAHUB_R_DB_PROFILE", unset = "MBHI")) {
+  function(profile = Sys.getenv("RDH_DB_PROFILE", unset = "MBHI")) {
     config <- database_config(profile)
     DBI::dbConnect(
       odbc::odbc(),

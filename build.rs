@@ -3,18 +3,18 @@ use std::{env, fs, path::Path};
 fn main() {
     println!("cargo:rerun-if-changed=VERSION");
     println!("cargo:rerun-if-changed=RELEASE_IMAGE");
-    println!("cargo:rerun-if-env-changed=DATAHUB_R_RELEASE_IMAGE");
+    println!("cargo:rerun-if-env-changed=RDH_RELEASE_IMAGE");
 
     let root = env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is set by Cargo");
     let version = read_trimmed(Path::new(&root).join("VERSION"));
     assert_valid_version(&version);
 
-    let release_image = env::var("DATAHUB_R_RELEASE_IMAGE")
+    let release_image = env::var("RDH_RELEASE_IMAGE")
         .unwrap_or_else(|_| read_trimmed(Path::new(&root).join("RELEASE_IMAGE")));
     assert!(!release_image.is_empty(), "RELEASE_IMAGE must not be empty");
 
-    println!("cargo:rustc-env=DATAHUB_R_VERSION={version}");
-    println!("cargo:rustc-env=DATAHUB_R_RELEASE_IMAGE={release_image}");
+    println!("cargo:rustc-env=RDH_VERSION={version}");
+    println!("cargo:rustc-env=RDH_RELEASE_IMAGE={release_image}");
 }
 
 fn read_trimmed(path: impl AsRef<Path>) -> String {

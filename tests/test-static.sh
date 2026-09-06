@@ -38,29 +38,29 @@ if rg -n 'cloud[.]r-project[.]org|r-universe[.]dev' \
 fi
 
 rg -q '^ARG BASE_IMAGE$' Containerfile
-rg -q '^ARG DATAHUB_R_VERSION$' Containerfile
+rg -q '^ARG RDH_VERSION$' Containerfile
 rg -Fq 'amd64|arm64' Containerfile
-rg -Fq -- '--build-arg "DATAHUB_R_VERSION=$version"' Justfile
+rg -Fq -- '--build-arg "RDH_VERSION=$version"' Justfile
 if [[ "$BASE_IMAGE" == *@sha256:* ]]; then
   echo "the R base image is unexpectedly pinned by digest" >&2
   exit 1
 fi
 
 rg -q 'needenv::needenv[(]' container/database.R
-rg -q 'DATAHUB_R_DB_PROFILE' container/database.R
-rg -q '^datahub_connect <- local[(]' container/database.R
-rg -Fq 'sys.source("/opt/datahub-r/database.R", envir = globalenv())' container/Rprofile.site
-rg -Fq 'env!("DATAHUB_R_VERSION")' src/main.rs
-rg -Fq 'cargo:rustc-env=DATAHUB_R_VERSION' build.rs
+rg -q 'RDH_DB_PROFILE' container/database.R
+rg -q '^rdh_connect <- local[(]' container/database.R
+rg -Fq 'sys.source("/opt/rdh/database.R", envir = globalenv())' container/Rprofile.site
+rg -Fq 'env!("RDH_VERSION")' src/main.rs
+rg -Fq 'cargo:rustc-env=RDH_VERSION' build.rs
 rg -Fq -- '--cleanenv' src/main.rs
 rg -Fq -- '--db PROFILE' src/main.rs
 rg -Fq 'APPTAINERENV_' src/main.rs
-rg -q '^docker://ghcr[.]io/cole-brokamp/datahub-r@sha256:' RELEASE_IMAGE
+rg -q '^docker://ghcr[.]io/cole-brokamp/rdh@sha256:' RELEASE_IMAGE
 rg -q 'linux/amd64' .github/workflows/release.yml
 rg -q 'linux/arm64' .github/workflows/release.yml
-rg -Fq 'pattern: datahub-r-*' .github/workflows/release.yml
+rg -Fq 'pattern: rdh-*' .github/workflows/release.yml
 
-if [[ -e bin/datahub-r ]]; then
+if [[ -e bin/rdh ]]; then
   echo "the obsolete Bash launcher still exists" >&2
   exit 1
 fi

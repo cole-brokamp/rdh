@@ -2,14 +2,14 @@
 
 set -eu
 
-repository="cole-brokamp/datahub-r"
-install_dir="${DATAHUB_R_INSTALL_DIR:-$HOME/.local/bin}"
+repository="cole-brokamp/rdh"
+install_dir="${RDH_INSTALL_DIR:-$HOME/.local/bin}"
 requested_version=""
 pull_mode="ask"
 
 usage() {
   printf '%s\n' \
-    'Install a released datahub-r CLI binary.' \
+    'Install a released rdh CLI binary.' \
     '' \
     'Usage: install.sh [--version VERSION] [--install-dir DIRECTORY] [--pull|--no-pull]' \
     '' \
@@ -20,8 +20,8 @@ usage() {
     '  --no-pull               Do not offer to pull the linked image.' \
     '' \
     'Environment:' \
-    '  DATAHUB_R_INSTALL_DIR       Default installation directory.' \
-    '  DATAHUB_R_RELEASE_BASE_URL  Override the release download URL.'
+    '  RDH_INSTALL_DIR       Default installation directory.' \
+    '  RDH_RELEASE_BASE_URL  Override the release download URL.'
 }
 
 while [ "$#" -gt 0 ]; do
@@ -69,17 +69,17 @@ case "$(uname -m)" in
 esac
 
 target="${architecture}-${operating_system}"
-archive="datahub-r-${target}.tar.gz"
+archive="rdh-${target}.tar.gz"
 
-if [ -n "${DATAHUB_R_RELEASE_BASE_URL:-}" ]; then
-  base_url="$DATAHUB_R_RELEASE_BASE_URL"
+if [ -n "${RDH_RELEASE_BASE_URL:-}" ]; then
+  base_url="$RDH_RELEASE_BASE_URL"
 elif [ -n "$requested_version" ]; then
   base_url="https://github.com/${repository}/releases/download/v${requested_version}"
 else
   base_url="https://github.com/${repository}/releases/latest/download"
 fi
 
-temporary_dir="$(mktemp -d 2>/dev/null || mktemp -d -t datahub-r)"
+temporary_dir="$(mktemp -d 2>/dev/null || mktemp -d -t rdh)"
 cleanup() {
   rm -rf -- "$temporary_dir"
 }
@@ -93,7 +93,7 @@ download() {
   elif command -v wget >/dev/null 2>&1; then
     wget -q "$source_url" -O "$destination"
   else
-    printf '%s\n' 'curl or wget is required to download datahub-r' >&2
+    printf '%s\n' 'curl or wget is required to download rdh' >&2
     exit 1
   fi
 }
@@ -109,26 +109,26 @@ if command -v sha256sum >/dev/null 2>&1; then
 elif command -v shasum >/dev/null 2>&1; then
   actual="$(shasum -a 256 "$temporary_dir/$archive" | awk '{ print $1 }')"
 else
-  printf '%s\n' 'sha256sum or shasum is required to verify datahub-r' >&2
+  printf '%s\n' 'sha256sum or shasum is required to verify rdh' >&2
   exit 1
 fi
 
 [ "$actual" = "$expected" ] || { printf 'checksum verification failed for %s\n' "$archive" >&2; exit 1; }
 
 tar -xzf "$temporary_dir/$archive" -C "$temporary_dir"
-[ -x "$temporary_dir/datahub-r" ] || { printf '%s\n' 'release archive does not contain datahub-r' >&2; exit 1; }
+[ -x "$temporary_dir/rdh" ] || { printf '%s\n' 'release archive does not contain rdh' >&2; exit 1; }
 install -d "$install_dir"
-install -m 0755 "$temporary_dir/datahub-r" "$install_dir/datahub-r"
+install -m 0755 "$temporary_dir/rdh" "$install_dir/rdh"
 
-printf 'installed %s\n' "$install_dir/datahub-r"
-"$install_dir/datahub-r" version
+printf 'installed %s\n' "$install_dir/rdh"
+"$install_dir/rdh" version
 
 pull_image() {
-  "$install_dir/datahub-r" pull
+  "$install_dir/rdh" pull
 }
 
 print_pull_hint() {
-  printf 'run %s pull to download the container image before first use\n' "$install_dir/datahub-r"
+  printf 'run %s pull to download the container image before first use\n' "$install_dir/rdh"
 }
 
 case "$pull_mode" in

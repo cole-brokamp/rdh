@@ -14,8 +14,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LC_ALL=C.UTF-8 \
     TZ=UTC \
     R_VERSION=${R_VERSION} \
-    R_LIBS_SITE=/opt/datahub-r/site-library \
-    DATAHUB_R_PPM_REPO=${PPM_REPO}
+    R_LIBS_SITE=/opt/rdh/site-library \
+    RDH_PPM_REPO=${PPM_REPO}
 
 # The fully specified Posit tag fixes the R patch version while allowing the
 # image publisher to rebuild that tag with OS and security updates.
@@ -59,49 +59,49 @@ RUN curl --fail --location --silent --show-error \
     && odbcinst -q -d | grep -Fx '[ODBC Driver 18 for SQL Server]'
 
 RUN install -d -o root -g root -m 0755 \
-        /opt/datahub-r \
-        /opt/datahub-r/site-library
+        /opt/rdh \
+        /opt/rdh/site-library
 
-COPY pkg.lock /opt/datahub-r/pkg.lock
-COPY container/install-locked.R /opt/datahub-r/install-locked.R
+COPY pkg.lock /opt/rdh/pkg.lock
+COPY container/install-locked.R /opt/rdh/install-locked.R
 
 # Bootstrap pak through PPM, then install every direct and transitive package at
 # the exact version in the committed lock. The installer also writes a manifest
 # and fails if the installed library and lock disagree.
-RUN Rscript -e 'options(repos = c(CRAN = Sys.getenv("DATAHUB_R_PPM_REPO"))); install.packages("pak", lib = Sys.getenv("R_LIBS_SITE"), dependencies = NA)' \
-    && Rscript /opt/datahub-r/install-locked.R
+RUN Rscript -e 'options(repos = c(CRAN = Sys.getenv("RDH_PPM_REPO"))); install.packages("pak", lib = Sys.getenv("R_LIBS_SITE"), dependencies = NA)' \
+    && Rscript /opt/rdh/install-locked.R
 
-COPY VERSION /opt/datahub-r/VERSION
+COPY VERSION /opt/rdh/VERSION
 COPY container/Rprofile.site "/opt/R/${R_VERSION}/lib/R/etc/Rprofile.site"
-COPY container/database.R /opt/datahub-r/database.R
-COPY container/check.R /opt/datahub-r/check.R
-COPY container/smoke.R /opt/datahub-r/smoke.R
+COPY container/database.R /opt/rdh/database.R
+COPY container/check.R /opt/rdh/check.R
+COPY container/smoke.R /opt/rdh/smoke.R
 
-ARG DATAHUB_R_VERSION
+ARG RDH_VERSION
 
 # VERSION is the release-version authority. The build caller supplies the same
 # value as an argument so OCI metadata cannot silently drift from the checkout.
-RUN test -n "${DATAHUB_R_VERSION}" \
-    && test "$(tr -d '\r\n' < /opt/datahub-r/VERSION)" = "${DATAHUB_R_VERSION}"
+RUN test -n "${RDH_VERSION}" \
+    && test "$(tr -d '\r\n' < /opt/rdh/VERSION)" = "${RDH_VERSION}"
 
-RUN chmod -R a=rX /opt/datahub-r \
-    && Rscript /opt/datahub-r/smoke.R
+RUN chmod -R a=rX /opt/rdh \
+    && Rscript /opt/rdh/smoke.R
 
 # Build metadata belongs to the OCI labels and does not invalidate dependency layers.
 ARG BUILD_DATE=unknown
 ARG VCS_REF=uncommitted
 ARG PACKAGE_LOCK_SHA256=unknown
 
-LABEL org.opencontainers.image.title="datahub-r" \
-      org.opencontainers.image.description="R environment for CCHMC DataHub SQL Server work" \
-      org.opencontainers.image.version="${DATAHUB_R_VERSION}" \
+LABEL org.opencontainers.image.title="rdh" \
+      org.opencontainers.image.description="Portable R environment for database work" \
+      org.opencontainers.image.version="${RDH_VERSION}" \
       org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.revision="${VCS_REF}" \
       org.opencontainers.image.base.name="${BASE_IMAGE}" \
-      io.datahub-r.r.version="${R_VERSION}" \
-      io.datahub-r.msodbcsql.version="${MSODBCSQL_VERSION}" \
-      io.datahub-r.package-lock.sha256="${PACKAGE_LOCK_SHA256}" \
-      io.datahub-r.cran.repository="${PPM_REPO}"
+      io.rdh.r.version="${R_VERSION}" \
+      io.rdh.msodbcsql.version="${MSODBCSQL_VERSION}" \
+      io.rdh.package-lock.sha256="${PACKAGE_LOCK_SHA256}" \
+      io.rdh.cran.repository="${PPM_REPO}"
 
 WORKDIR /work
 

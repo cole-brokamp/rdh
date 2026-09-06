@@ -3,7 +3,7 @@
 set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-binary="${1:-$repo_dir/target/debug/datahub-r}"
+binary="${1:-$repo_dir/target/debug/rdh}"
 [[ "$binary" = /* ]] || binary="$repo_dir/$binary"
 [[ -x "$binary" ]] || {
   echo "Rust CLI is not executable: $binary" >&2
@@ -26,13 +26,13 @@ project_real="$(cd "$project_dir" && pwd -P)"
 cat > "$fake_bin/container" <<'FAKE_CONTAINER'
 #!/usr/bin/env bash
 set -euo pipefail
-printf '%s\n' "$@" > "$DATAHUB_TEST_ARGS_LOG"
+printf '%s\n' "$@" > "$RDH_TEST_ARGS_LOG"
 {
-  printf 'profile=%s\n' "${DATAHUB_R_DB_PROFILE:-}"
+  printf 'profile=%s\n' "${RDH_DB_PROFILE:-}"
   printf 'custom=%s\n' "${CUSTOM_SETTING:-}"
-} > "$DATAHUB_TEST_ENV_LOG"
+} > "$RDH_TEST_ENV_LOG"
 if [[ "${1:-}" == "image" && "${2:-}" == "pull" ]]; then
-  printf 'container-pull\n' >> "$DATAHUB_TEST_PULL_LOG"
+  printf 'container-pull\n' >> "$RDH_TEST_PULL_LOG"
 fi
 FAKE_CONTAINER
 
@@ -40,31 +40,31 @@ cat > "$fake_bin/apptainer" <<'FAKE_APPTAINER'
 #!/usr/bin/env bash
 set -euo pipefail
 if [[ "${1:-}" == "--silent" && "${2:-}" == "pull" ]]; then
-  printf 'apptainer-pull\n' >> "$DATAHUB_TEST_PULL_LOG"
+  printf 'apptainer-pull\n' >> "$RDH_TEST_PULL_LOG"
   : > "$3"
   exit 0
 fi
-printf '%s\n' "$@" > "$DATAHUB_TEST_ARGS_LOG"
+printf '%s\n' "$@" > "$RDH_TEST_ARGS_LOG"
 {
-  printf 'profile=%s\n' "${APPTAINERENV_DATAHUB_R_DB_PROFILE:-}"
+  printf 'profile=%s\n' "${APPTAINERENV_RDH_DB_PROFILE:-}"
   printf 'host=%s\n' "${APPTAINERENV_MBHI_DB_HOST:-}"
   printf 'custom=%s\n' "${APPTAINERENV_CUSTOM_SETTING:-}"
   printf 'inherited_rlibs=%s\n' "${APPTAINERENV_R_LIBS_USER:-}"
   printf 'inherited_unrelated=%s\n' "${SINGULARITYENV_UNRELATED:-}"
-  printf 'data=%s\n' "${APPTAINERENV_DATAHUB_R_DATA_DIR:-}"
-} > "$DATAHUB_TEST_ENV_LOG"
+  printf 'data=%s\n' "${APPTAINERENV_RDH_DATA_DIR:-}"
+} > "$RDH_TEST_ENV_LOG"
 FAKE_APPTAINER
 chmod +x "$fake_bin/container" "$fake_bin/apptainer"
 ln -s container "$fake_bin/docker"
 ln -s container "$fake_bin/podman"
 
 export PATH="$fake_bin:$PATH"
-export DATAHUB_TEST_ARGS_LOG="$runtime_args"
-export DATAHUB_TEST_ENV_LOG="$runtime_env"
-export DATAHUB_TEST_PULL_LOG="$pull_log"
-export DATAHUB_R_IMAGE="docker://example.invalid/datahub-r@sha256:0123456789abcdef"
-export DATAHUB_R_CACHE_DIR="$cache_dir"
-export DATAHUB_R_DATA_DIR="$data_dir"
+export RDH_TEST_ARGS_LOG="$runtime_args"
+export RDH_TEST_ENV_LOG="$runtime_env"
+export RDH_TEST_PULL_LOG="$pull_log"
+export RDH_IMAGE="docker://example.invalid/rdh@sha256:0123456789abcdef"
+export RDH_CACHE_DIR="$cache_dir"
+export RDH_DATA_DIR="$data_dir"
 export MBHI_DB_HOST="host-secret"
 export MBHI_DB_USERNAME="user-secret"
 export MBHI_DB_PASSWORD="password-secret"
@@ -76,20 +76,20 @@ export CUSTOM_SETTING="custom-secret"
 
 expected_version="$(tr -d '\r\n' < "$repo_dir/VERSION")"
 version_output="$($binary version)"
-rg -Fq "datahub-r $expected_version" <<<"$version_output"
-rg -Fq 'image override: docker://example.invalid/datahub-r@sha256:0123456789abcdef' <<<"$version_output"
+rg -Fq "rdh $expected_version" <<<"$version_output"
+rg -Fq 'image override: docker://example.invalid/rdh@sha256:0123456789abcdef' <<<"$version_output"
 "$binary" help | rg -q '^Usage:'
 "$binary" --runtime container doctor | rg -Fq 'selected runtime: container'
 
 # Informational commands remain usable when execution defaults need repair.
 for command in help version; do
-  DATAHUB_R_RUNTIME=invalid-runtime DATAHUB_R_DB_PROFILE=invalid-profile \
+  RDH_RUNTIME=invalid-runtime RDH_DB_PROFILE=invalid-profile \
     "$binary" "$command" >/dev/null
 done
-DATAHUB_R_RUNTIME=invalid-runtime DATAHUB_R_DB_PROFILE=invalid-profile \
+RDH_RUNTIME=invalid-runtime RDH_DB_PROFILE=invalid-profile \
   "$binary" --runtime auto doctor >/dev/null
-DATAHUB_R_RUNTIME=podman "$binary" doctor | rg -Fq 'selected runtime: podman'
-if DATAHUB_R_RUNTIME=invalid-runtime "$binary" doctor >/dev/null 2>&1; then
+RDH_RUNTIME=podman "$binary" doctor | rg -Fq 'selected runtime: podman'
+if RDH_RUNTIME=invalid-runtime "$binary" doctor >/dev/null 2>&1; then
   echo "an invalid runtime default was unexpectedly accepted" >&2
   exit 1
 fi
@@ -101,10 +101,10 @@ rg -Fxq -- '--rm' "$runtime_args"
 rg -Fxq -- '--volume' "$runtime_args"
 rg -Fxq -- '--workdir' "$runtime_args"
 rg -Fxq -- "$project_real:$project_real" "$runtime_args"
-rg -Fxq -- "$data_dir:/home/datahub-r/.local/share/datahub-r" "$runtime_args"
-rg -Fxq 'DATAHUB_R_DATA_DIR=/home/datahub-r/.local/share/datahub-r' "$runtime_args"
-rg -Fxq 'example.invalid/datahub-r@sha256:0123456789abcdef' "$runtime_args"
-rg -Fxq 'DATAHUB_R_DB_PROFILE' "$runtime_args"
+rg -Fxq -- "$data_dir:/home/rdh/.local/share/rdh" "$runtime_args"
+rg -Fxq 'RDH_DATA_DIR=/home/rdh/.local/share/rdh' "$runtime_args"
+rg -Fxq 'example.invalid/rdh@sha256:0123456789abcdef' "$runtime_args"
+rg -Fxq 'RDH_DB_PROFILE' "$runtime_args"
 rg -Fxq 'MBHI_DB_HOST' "$runtime_args"
 rg -Fxq 'CUSTOM_SETTING' "$runtime_args"
 rg -Fxq 'Rscript' "$runtime_args"
@@ -142,12 +142,12 @@ if rg -Fxq 'MBHI_DB_HOST' "$runtime_args"; then
   exit 1
 fi
 
-DATAHUB_R_DB_PROFILE=omop "$binary" --runtime container Rscript analysis.R
+RDH_DB_PROFILE=omop "$binary" --runtime container Rscript analysis.R
 rg -Fxq 'profile=OMOP' "$runtime_env"
-DATAHUB_R_DB_PROFILE=invalid-profile \
+RDH_DB_PROFILE=invalid-profile \
   "$binary" --runtime container --db mbhi Rscript analysis.R
 rg -Fxq 'profile=MBHI' "$runtime_env"
-if DATAHUB_R_DB_PROFILE=invalid-profile \
+if RDH_DB_PROFILE=invalid-profile \
   "$binary" --runtime container Rscript analysis.R >/dev/null 2>&1; then
   echo "an invalid database profile default was unexpectedly accepted" >&2
   exit 1
@@ -176,8 +176,8 @@ rg -Fxq 'host=host-secret' "$runtime_env"
 rg -Fxq 'custom=custom-secret' "$runtime_env"
 rg -Fxq 'inherited_rlibs=' "$runtime_env"
 rg -Fxq 'inherited_unrelated=' "$runtime_env"
-rg -Fxq -- "$data_dir:/home/datahub-r/.local/share/datahub-r" "$runtime_args"
-rg -Fxq 'data=/home/datahub-r/.local/share/datahub-r' "$runtime_env"
+rg -Fxq -- "$data_dir:/home/rdh/.local/share/rdh" "$runtime_args"
+rg -Fxq 'data=/home/rdh/.local/share/rdh' "$runtime_env"
 
 if "$binary" --runtime container --env CUSTOM_SETTING=value R >/dev/null 2>&1; then
   echo "NAME=value unexpectedly accepted" >&2
@@ -194,7 +194,7 @@ fi
 
 local_sif="$test_root/local.sif"
 : > "$local_sif"
-if DATAHUB_R_IMAGE="$local_sif" "$binary" --runtime container pull >/dev/null 2>&1; then
+if RDH_IMAGE="$local_sif" "$binary" --runtime container pull >/dev/null 2>&1; then
   echo "an OCI runtime unexpectedly accepted a local SIF" >&2
   exit 1
 fi

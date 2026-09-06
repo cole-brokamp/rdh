@@ -2,13 +2,13 @@
 
 set -euo pipefail
 
-image="${1:-datahub-r:local}"
+image="${1:-rdh:local}"
 case "$(uname -m)" in
   arm64|aarch64) native_platform="linux/arm64" ;;
   x86_64|amd64) native_platform="linux/amd64" ;;
   *) echo "unsupported host architecture: $(uname -m)" >&2; exit 1 ;;
 esac
-platform="${DATAHUB_R_PLATFORM:-$native_platform}"
+platform="${RDH_PLATFORM:-$native_platform}"
 architecture="${platform#linux/}"
 test_root="$(mktemp -d)"
 trap 'rm -rf -- "$test_root"' EXIT HUP INT TERM

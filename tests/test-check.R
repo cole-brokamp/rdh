@@ -1,10 +1,10 @@
 # Sourcing the helper exposes only the public connection function.
 helper_environment <- new.env(parent = baseenv())
-sys.source("/opt/datahub-r/database.R", envir = helper_environment)
-stopifnot(identical(ls(helper_environment, all.names = TRUE), "datahub_connect"))
+sys.source("/opt/rdh/database.R", envir = helper_environment)
+stopifnot(identical(ls(helper_environment, all.names = TRUE), "rdh_connect"))
 
 check_environment <- new.env(parent = baseenv())
-sys.source("/opt/datahub-r/check.R", envir = check_environment)
+sys.source("/opt/rdh/check.R", envir = check_environment)
 
 state <- new.env(parent = emptyenv())
 state$connect_arguments <- NULL
@@ -35,14 +35,14 @@ assignInNamespace(
 )
 assignInNamespace(
   "odbc",
-  function(...) structure(list(), class = "datahub_test_driver"),
+  function(...) structure(list(), class = "rdh_test_driver"),
   ns = "odbc"
 )
 assignInNamespace(
   "dbConnect",
   function(drv, ...) {
     state$connect_arguments <- list(...)
-    structure(list(), class = "datahub_test_connection")
+    structure(list(), class = "rdh_test_connection")
   },
   ns = "DBI"
 )
@@ -78,7 +78,7 @@ omop_names <- c(
   "OMOP_DB_USERNAME",
   "OMOP_DB_PASSWORD"
 )
-environment_names <- c(mbhi_names, omop_names, "DATAHUB_R_DB_PROFILE")
+environment_names <- c(mbhi_names, omop_names, "RDH_DB_PROFILE")
 old_values <- Sys.getenv(environment_names, unset = NA_character_, names = TRUE)
 on.exit({
   Sys.unsetenv(environment_names)
@@ -88,7 +88,7 @@ on.exit({
   }
 }, add = TRUE)
 
-Sys.unsetenv(c(omop_names, "DATAHUB_R_DB_PROFILE"))
+Sys.unsetenv(c(omop_names, "RDH_DB_PROFILE"))
 Sys.unsetenv("MBHI_DB_NAME")
 
 set_mbhi <- function(host = "host-secret", username = "user-secret", password = "password-secret") {
@@ -101,7 +101,7 @@ set_mbhi <- function(host = "host-secret", username = "user-secret", password = 
 
 set_mbhi()
 messages <- capture.output(
-  result <- check_environment$datahub_r_check(),
+  result <- check_environment$rdh_check(),
   type = "message"
 )
 stopifnot(
@@ -125,7 +125,7 @@ stopifnot(
 state$query_error <- TRUE
 error_messages <- capture.output(
   query_condition <- tryCatch(
-    check_environment$datahub_r_check(),
+    check_environment$rdh_check(),
     error = identity
   ),
   type = "message"
@@ -142,7 +142,7 @@ state$query_error <- FALSE
 
 Sys.unsetenv(mbhi_names)
 missing_condition <- tryCatch(
-  check_environment$datahub_r_check(),
+  check_environment$rdh_check(),
   needenv_missing = identity
 )
 stopifnot(
@@ -153,7 +153,7 @@ stopifnot(
 
 set_mbhi(host = "", username = "", password = "")
 empty_condition <- tryCatch(
-  check_environment$datahub_r_check(),
+  check_environment$rdh_check(),
   needenv_missing = identity
 )
 stopifnot(
@@ -168,7 +168,7 @@ on.exit(options(repos = old_repos), add = TRUE)
 options(repos = c(CRAN = "https://example.invalid/cran"))
 ppm_warning <- NULL
 withCallingHandlers(
-  check_environment$datahub_r_check(),
+  check_environment$rdh_check(),
   warning = function(condition) {
     ppm_warning <<- condition
     invokeRestart("muffleWarning")
@@ -188,7 +188,7 @@ Sys.setenv(
   OMOP_DB_PASSWORD = "omop-password-secret"
 )
 omop_messages <- capture.output(
-  omop_result <- check_environment$datahub_r_check("omop"),
+  omop_result <- check_environment$rdh_check("omop"),
   type = "message"
 )
 stopifnot(
@@ -213,14 +213,14 @@ stopifnot(
 )
 
 Sys.unsetenv("OMOP_DB_NAME")
-omop_default <- check_environment$datahub_connect("OMOP")
+omop_default <- check_environment$rdh_connect("OMOP")
 stopifnot(identical(state$connect_arguments$Database, "OMOP"))
 DBI::dbDisconnect(omop_default)
 
-Sys.setenv(DATAHUB_R_DB_PROFILE = "OMOP")
-shortcut_connection <- check_environment$datahub_connect()
+Sys.setenv(RDH_DB_PROFILE = "OMOP")
+shortcut_connection <- check_environment$rdh_connect()
 stopifnot(
-  inherits(shortcut_connection, "datahub_test_connection"),
+  inherits(shortcut_connection, "rdh_test_connection"),
   identical(
     state$connect_arguments,
     list(
