@@ -11,7 +11,7 @@ version="$(tr -d '\r\n' < VERSION)"
   exit 1
 }
 
-for file in install.sh scripts/*.sh tests/*.sh; do
+for file in image.conf install.sh scripts/*.sh tests/*.sh; do
   bash -n "$file"
 done
 
@@ -19,12 +19,11 @@ for file in container/*.R tests/*.R; do
   Rscript -e 'parse(file = commandArgs(trailingOnly = TRUE)[[1L]])' "$file" >/dev/null
 done
 
-jq -e '
+source image.conf
+jq -e --arg r_version "$R_VERSION" '
   .lockfile_version == 1 and
-  ([.packages[].package] | contains([
-    "needenv", "DBI", "odbc", "dplyr", "dbplyr",
-    "nanoparquet", "bit64", "pak", "renv"
-  ])) and
+  (.r_version | startswith("R version " + $r_version + " ")) and
+  ([.packages[] | select(.direct == true)] | length > 0) and
   all(.packages[];
     (.sources | length) > 0 and
     all(.sources[]; startswith("https://packagemanager.posit.co/")) and
@@ -38,11 +37,11 @@ if rg -n 'cloud[.]r-project[.]org|r-universe[.]dev' \
   exit 1
 fi
 
-rg -q '^ARG BASE_IMAGE=docker.io/posit/r-base:4[.]6[.]1-noble$' Containerfile
+rg -q '^ARG BASE_IMAGE$' Containerfile
 rg -q '^ARG DATAHUB_R_VERSION$' Containerfile
 rg -Fq 'amd64|arm64' Containerfile
 rg -Fq -- '--build-arg "DATAHUB_R_VERSION=$version"' Justfile
-if rg -q '^ARG BASE_IMAGE=.*@sha256:' Containerfile; then
+if [[ "$BASE_IMAGE" == *@sha256:* ]]; then
   echo "the R base image is unexpectedly pinned by digest" >&2
   exit 1
 fi

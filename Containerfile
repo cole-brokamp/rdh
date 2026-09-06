@@ -1,14 +1,14 @@
-ARG BASE_IMAGE=docker.io/posit/r-base:4.6.1-noble
+ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
 ARG BASE_IMAGE
-ARG R_VERSION=4.6.1
+ARG R_VERSION
 ARG MS_REPO_DEB_SHA256=c13f01ac7c3001b51a9281d40dde666db5e037e05512840c319832f7852bfec4
 ARG MSODBCSQL_VERSION=18.6.2.1-1
 ARG DATAHUB_R_VERSION
 ARG VCS_REF=uncommitted
 ARG PACKAGE_LOCK_SHA256=unknown
-ARG PPM_REPO=https://packagemanager.posit.co/cran/__linux__/noble/latest
+ARG PPM_REPO
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -72,8 +72,7 @@ COPY container/install-locked.R /opt/datahub-r/install-locked.R
 # the exact version in the committed lock. The installer also writes a manifest
 # and fails if the installed library and lock disagree.
 RUN Rscript -e 'options(repos = c(CRAN = Sys.getenv("DATAHUB_R_PPM_REPO"))); install.packages("pak", lib = Sys.getenv("R_LIBS_SITE"), dependencies = NA)' \
-    && Rscript /opt/datahub-r/install-locked.R \
-    && Rscript -e 'required <- c("needenv", "DBI", "odbc", "dplyr", "dbplyr", "nanoparquet", "bit64", "pak", "renv"); stopifnot(all(vapply(required, requireNamespace, logical(1), quietly = TRUE)), packageVersion("needenv") == package_version("0.1.0"))'
+    && Rscript /opt/datahub-r/install-locked.R
 
 COPY VERSION /opt/datahub-r/VERSION
 COPY container/Rprofile.site "/opt/R/${R_VERSION}/lib/R/etc/Rprofile.site"

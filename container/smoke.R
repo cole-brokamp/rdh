@@ -1,33 +1,29 @@
 #!/usr/bin/env Rscript
 
+image_config <- readRDS("/opt/datahub-r/image-config.rds")
+
 stopifnot(
-  identical(as.character(getRversion()), "4.6.1"),
+  identical(as.character(getRversion()), image_config$r_version),
   identical(
     unname(getOption("repos")[["CRAN"]]),
-    "https://packagemanager.posit.co/cran/__linux__/noble/latest"
+    image_config$ppm_repo
   )
 )
 
-required <- c(
-  "needenv",
-  "DBI",
-  "odbc",
-  "dplyr",
-  "dbplyr",
-  "nanoparquet",
-  "bit64",
-  "pak",
-  "renv"
-)
+required <- image_config$packages
 
 stopifnot(
   all(vapply(required, requireNamespace, logical(1L), quietly = TRUE)),
-  packageVersion("needenv") == package_version("0.1.0"),
   exists("datahub_connect", envir = globalenv(), mode = "function", inherits = FALSE),
   startsWith(
     normalizePath(.libPaths()[[1L]], mustWork = TRUE),
     normalizePath(
-      path.expand("~/.local/share/datahub-r/v1/R-4.6/library"),
+      file.path(
+        Sys.getenv("DATAHUB_R_DATA_DIR", unset = path.expand("~/.local/share/datahub-r")),
+        "v1",
+        paste0("R-", paste(strsplit(image_config$r_version, ".", fixed = TRUE)[[1L]][1:2], collapse = ".")),
+        "library"
+      ),
       mustWork = TRUE
     )
   )

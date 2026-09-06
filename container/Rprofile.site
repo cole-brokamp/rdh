@@ -1,8 +1,8 @@
 local({
-  ppm_repo <- "https://packagemanager.posit.co/cran/__linux__/noble/latest"
+  image_config <- readRDS("/opt/datahub-r/image-config.rds")
 
   options(
-    repos = c(CRAN = ppm_repo),
+    repos = c(CRAN = image_config$ppm_repo),
     HTTPUserAgent = sprintf(
       "R/%s R (%s)",
       getRversion(),

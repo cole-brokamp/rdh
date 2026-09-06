@@ -15,6 +15,9 @@ jobs:
       version: ${{ steps.release.outputs.version }}
       build_date: ${{ steps.release.outputs.build_date }}
       lock_sha: ${{ steps.release.outputs.lock_sha }}
+      base_image: ${{ steps.release.outputs.base_image }}
+      r_version: ${{ steps.release.outputs.r_version }}
+      ppm_repo: ${{ steps.release.outputs.ppm_repo }}
     steps:
       - uses: actions/checkout@v4
       - id: release
@@ -22,6 +25,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          source image.conf
+          echo "base_image=$BASE_IMAGE" >> "$GITHUB_OUTPUT"
+          echo "r_version=$R_VERSION" >> "$GITHUB_OUTPUT"
+          echo "ppm_repo=$PPM_REPO" >> "$GITHUB_OUTPUT"
           version="$(tr -d '\r\n' < VERSION)"
           [[ "$version" =~ ^[0-9]{4}[.](0[1-9]|1[0-2])[.](0|[1-9][0-9]*)$ ]]
           [[ "$GITHUB_REF_NAME" == "v$version" ]]
@@ -71,6 +78,9 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ needs.validate.outputs.version }}
           build-args: |
+            BASE_IMAGE=${{ needs.validate.outputs.base_image }}
+            R_VERSION=${{ needs.validate.outputs.r_version }}
+            PPM_REPO=${{ needs.validate.outputs.ppm_repo }}
             DATAHUB_R_VERSION=${{ needs.validate.outputs.version }}
             BUILD_DATE=${{ needs.validate.outputs.build_date }}
             VCS_REF=${{ github.sha }}

@@ -73,3 +73,15 @@ manifest <- data.frame(
 )
 manifest <- manifest[order(manifest$Package), , drop = FALSE]
 write.csv(manifest, "/opt/datahub-r/installed-packages.csv", row.names = FALSE)
+
+# Runtime checks and startup consume the same settings used to build the image.
+direct <- vapply(locked, function(package) isTRUE(package$direct), logical(1L))
+saveRDS(
+  list(
+    r_version = Sys.getenv("R_VERSION"),
+    ppm_repo = ppm_repo,
+    packages = package_names[direct]
+  ),
+  "/opt/datahub-r/image-config.rds",
+  version = 2
+)

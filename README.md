@@ -133,4 +133,5 @@ datahub-r --env MY_SETTING Rscript analysis.R
 - Apptainer images are cached under `/scratch/$USER/datahub-r` when available, otherwise under the user cache directory; set `DATAHUB_R_CACHE_DIR` to override it.
 - User-installed R packages persist under the user data directory; set `DATAHUB_R_DATA_DIR` to override it.
 - Packages use Posit Public Package Manager by default.
+- `image.conf` defines the R version, base image, and package repository for local and release builds; `pkg.lock` defines required packages and their versions.
 - Database secrets are read from the selected profile's environment variables and are not placed in container command arguments.

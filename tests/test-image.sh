@@ -94,7 +94,7 @@ container run --rm \
     identical(getOption("datahub.test.rprofile"), "loaded"),
     identical(
       unname(getOption("repos")[["CRAN"]]),
-      "https://packagemanager.posit.co/cran/__linux__/noble/latest"
+      readRDS("/opt/datahub-r/image-config.rds")$ppm_repo
     ),
     startsWith(.libPaths()[[1L]], path.expand("~/.local/share/datahub-r/"))
   )

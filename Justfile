@@ -8,6 +8,7 @@ default:
 build:
   #!/usr/bin/env bash
   set -euo pipefail
+  source image.conf
   version="$(tr -d '\r\n' < VERSION)"
   image_repository="${DATAHUB_R_IMAGE_REPOSITORY:-datahub-r}"
   case "$(uname -m)" in
@@ -26,6 +27,9 @@ build:
   container build \
     --platform "$platform" \
     --file Containerfile \
+    --build-arg "BASE_IMAGE=$BASE_IMAGE" \
+    --build-arg "R_VERSION=$R_VERSION" \
+    --build-arg "PPM_REPO=$PPM_REPO" \
     --tag "{{image}}" \
     --tag "$image_repository:$version" \
     --build-arg "DATAHUB_R_VERSION=$version" \

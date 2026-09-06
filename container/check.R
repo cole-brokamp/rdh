@@ -6,17 +6,8 @@ datahub_r_check <- function(profile = Sys.getenv(
   "DATAHUB_R_DB_PROFILE",
   unset = "MBHI"
 )) {
-  required_packages <- c(
-    "needenv",
-    "DBI",
-    "odbc",
-    "dplyr",
-    "dbplyr",
-    "nanoparquet",
-    "bit64",
-    "pak",
-    "renv"
-  )
+  image_config <- readRDS("/opt/datahub-r/image-config.rds")
+  required_packages <- image_config$packages
 
   unavailable <- required_packages[
     !vapply(required_packages, requireNamespace, logical(1L), quietly = TRUE)
@@ -26,7 +17,7 @@ datahub_r_check <- function(profile = Sys.getenv(
     stop("required package(s) unavailable: ", paste(unavailable, collapse = ", "))
   }
 
-  expected_ppm <- "https://packagemanager.posit.co/cran/__linux__/noble/latest"
+  expected_ppm <- image_config$ppm_repo
   active_cran <- unname(getOption("repos")[["CRAN"]])
 
   if (!identical(active_cran, expected_ppm)) {

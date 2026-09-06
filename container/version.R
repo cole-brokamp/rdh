@@ -34,17 +34,7 @@ cat("build date:", metadata_value("BUILD_DATE"), "\n")
 cat("source revision:", metadata_value("VCS_REF"), "\n")
 cat("user library:", .libPaths()[[1L]], "\n")
 
-packages <- c(
-  "needenv",
-  "DBI",
-  "odbc",
-  "dplyr",
-  "dbplyr",
-  "nanoparquet",
-  "bit64",
-  "pak",
-  "renv"
-)
+packages <- readRDS("/opt/datahub-r/image-config.rds")$packages
 
 for (package in packages) {
   version <- if (requireNamespace(package, quietly = TRUE)) {
