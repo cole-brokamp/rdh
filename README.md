@@ -140,7 +140,7 @@ export RDH_DATA_DIR="$HOME/.local/share/datahub-r"
 
 ## Technical notes
 
-- The current release is `2026.09.1`.
+- The current release is `2026.09.2`.
 - The environment currently uses R 4.6.1, Microsoft ODBC Driver 18, and common data packages including DBI, odbc, dplyr, dbplyr, nanoparquet, bit64, pak, and renv.
 - Released executables are available for macOS and Linux on both AMD64 and ARM64.
 - Each executable is linked to an immutable multi-architecture image digest.
