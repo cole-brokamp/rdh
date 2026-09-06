@@ -58,12 +58,7 @@ fn main() {
 }
 
 fn run() -> Result<i32, String> {
-    let mut cli = cli::parse(env::args_os().skip(1))?;
-    if cli.runtime == RuntimeRequest::Auto
-        && let Ok(value) = env::var("DATAHUB_R_RUNTIME")
-    {
-        cli.runtime = RuntimeRequest::parse(&value)?;
-    }
+    let cli = cli::parse(env::args_os().skip(1))?;
 
     match &cli.action {
         Action::Help => {
@@ -74,12 +69,12 @@ fn run() -> Result<i32, String> {
             print_version();
             return Ok(0);
         }
-        Action::Doctor => return Ok(i32::from(!doctor(cli.runtime)?)),
+        Action::Doctor => return Ok(i32::from(!doctor(cli.runtime_request()?)?)),
         Action::Pull => {}
         Action::Execute(_) => {}
     }
 
-    let selected_runtime = runtime::select(cli.runtime)?;
+    let selected_runtime = runtime::select(cli.runtime_request()?)?;
     let image = required_image()?;
 
     match &cli.action {
@@ -165,9 +160,10 @@ fn required_image() -> Result<String, String> {
 }
 
 fn forwarded_environment(cli: &Cli) -> Result<Vec<(String, OsString)>, String> {
+    let database_profile = cli.database_profile()?;
     let mut names = vec!["DATAHUB_R_DB_PROFILE".to_owned()];
     for suffix in ["HOST", "NAME", "USERNAME", "PASSWORD"] {
-        let name = format!("{}_DB_{suffix}", cli.database_profile);
+        let name = format!("{database_profile}_DB_{suffix}");
         if env::var_os(&name).is_some() {
             names.push(name);
         }
@@ -181,7 +177,7 @@ fn forwarded_environment(cli: &Cli) -> Result<Vec<(String, OsString)>, String> {
     let mut forwarded = Vec::with_capacity(names.len());
     for name in names {
         let value = if name == "DATAHUB_R_DB_PROFILE" {
-            OsString::from(&cli.database_profile)
+            OsString::from(&database_profile)
         } else {
             env::var_os(&name)
                 .ok_or_else(|| format!("environment variable is not exported or set: {name}"))?

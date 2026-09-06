@@ -80,6 +80,19 @@ rg -Fq 'image override: docker://example.invalid/datahub-r@sha256:0123456789abcd
 "$binary" help | rg -q '^Usage:'
 "$binary" --runtime container doctor | rg -Fq 'selected runtime: container'
 
+# Informational commands remain usable when execution defaults need repair.
+for command in help version; do
+  DATAHUB_R_RUNTIME=invalid-runtime DATAHUB_R_DB_PROFILE=invalid-profile \
+    "$binary" "$command" >/dev/null
+done
+DATAHUB_R_RUNTIME=invalid-runtime DATAHUB_R_DB_PROFILE=invalid-profile \
+  "$binary" --runtime auto doctor >/dev/null
+DATAHUB_R_RUNTIME=podman "$binary" doctor | rg -Fq 'selected runtime: podman'
+if DATAHUB_R_RUNTIME=invalid-runtime "$binary" doctor >/dev/null 2>&1; then
+  echo "an invalid runtime default was unexpectedly accepted" >&2
+  exit 1
+fi
+
 cd "$project_dir"
 "$binary" --runtime container --env CUSTOM_SETTING Rscript analysis.R --example
 rg -Fxq 'run' "$runtime_args"
@@ -123,6 +136,17 @@ rg -Fxq 'OMOP_DB_HOST' "$runtime_args"
 rg -Fxq 'OMOP_DB_NAME' "$runtime_args"
 if rg -Fxq 'MBHI_DB_HOST' "$runtime_args"; then
   echo "the unselected database profile was forwarded" >&2
+  exit 1
+fi
+
+DATAHUB_R_DB_PROFILE=omop "$binary" --runtime container Rscript analysis.R
+rg -Fxq 'profile=OMOP' "$runtime_env"
+DATAHUB_R_DB_PROFILE=invalid-profile \
+  "$binary" --runtime container --db mbhi Rscript analysis.R
+rg -Fxq 'profile=MBHI' "$runtime_env"
+if DATAHUB_R_DB_PROFILE=invalid-profile \
+  "$binary" --runtime container Rscript analysis.R >/dev/null 2>&1; then
+  echo "an invalid database profile default was unexpectedly accepted" >&2
   exit 1
 fi
 

@@ -37,38 +37,51 @@ pub enum Action {
 #[derive(Debug, Eq, PartialEq)]
 pub struct Cli {
     pub action: Action,
-    pub database_profile: String,
+    pub database_profile: Option<String>,
     pub forward_names: Vec<String>,
-    pub runtime: RuntimeRequest,
+    pub runtime: Option<RuntimeRequest>,
+}
+
+impl Cli {
+    pub fn runtime_request(&self) -> Result<RuntimeRequest, String> {
+        match self.runtime {
+            Some(runtime) => Ok(runtime),
+            None => std::env::var("DATAHUB_R_RUNTIME").map_or(Ok(RuntimeRequest::Auto), |value| {
+                RuntimeRequest::parse(&value)
+            }),
+        }
+    }
+
+    pub fn database_profile(&self) -> Result<String, String> {
+        let profile = self.database_profile.clone().unwrap_or_else(|| {
+            std::env::var("DATAHUB_R_DB_PROFILE").unwrap_or_else(|_| "MBHI".to_owned())
+        });
+        normalize_profile(&profile)
+    }
 }
 
 pub fn parse(arguments: impl IntoIterator<Item = OsString>) -> Result<Cli, String> {
     let mut arguments: VecDeque<OsString> = arguments.into_iter().collect();
-    let mut runtime = RuntimeRequest::Auto;
-    let mut runtime_seen = false;
-    let mut database_profile =
-        std::env::var("DATAHUB_R_DB_PROFILE").unwrap_or_else(|_| "MBHI".to_owned());
-    let mut database_seen = false;
+    let mut runtime = None;
+    let mut database_profile = None;
     let mut forward_names = Vec::new();
 
     while let Some(argument) = arguments.front().and_then(|argument| argument.to_str()) {
         match argument {
             "--runtime" => {
                 arguments.pop_front();
-                if runtime_seen {
+                if runtime.is_some() {
                     return Err("--runtime may be supplied only once".to_owned());
                 }
                 let value = next_utf8(&mut arguments, "--runtime")?;
-                runtime = RuntimeRequest::parse(&value)?;
-                runtime_seen = true;
+                runtime = Some(RuntimeRequest::parse(&value)?);
             }
             "--db" => {
                 arguments.pop_front();
-                if database_seen {
+                if database_profile.is_some() {
                     return Err("--db may be supplied only once".to_owned());
                 }
-                database_profile = normalize_profile(&next_utf8(&mut arguments, "--db")?)?;
-                database_seen = true;
+                database_profile = Some(normalize_profile(&next_utf8(&mut arguments, "--db")?)?);
             }
             "--env" => {
                 arguments.pop_front();
@@ -95,7 +108,6 @@ pub fn parse(arguments: impl IntoIterator<Item = OsString>) -> Result<Cli, Strin
         }
     }
 
-    database_profile = normalize_profile(&database_profile)?;
     let command = arguments.pop_front();
     let remaining: Vec<OsString> = arguments.into_iter().collect();
     let action = match command.as_ref().and_then(|command| command.to_str()) {
@@ -208,8 +220,8 @@ mod tests {
             "analysis.R",
         ]))
         .unwrap();
-        assert_eq!(cli.runtime, RuntimeRequest::Podman);
-        assert_eq!(cli.database_profile, "OMOP");
+        assert_eq!(cli.runtime, Some(RuntimeRequest::Podman));
+        assert_eq!(cli.database_profile.as_deref(), Some("OMOP"));
         assert_eq!(cli.forward_names, vec!["CUSTOM_SETTING"]);
         assert_eq!(
             cli.action,
