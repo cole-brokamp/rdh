@@ -1,3 +1,8 @@
+# Sourcing the helper exposes only the public connection function.
+helper_environment <- new.env(parent = baseenv())
+sys.source("/opt/datahub-r/database.R", envir = helper_environment)
+stopifnot(identical(ls(helper_environment, all.names = TRUE), "datahub_connect"))
+
 check_environment <- new.env(parent = baseenv())
 sys.source("/opt/datahub-r/check.R", envir = check_environment)
 
@@ -208,8 +213,9 @@ stopifnot(
 )
 
 Sys.unsetenv("OMOP_DB_NAME")
-omop_default <- check_environment$datahub_r_database_config("OMOP")
-stopifnot(identical(omop_default$database, "OMOP"))
+omop_default <- check_environment$datahub_connect("OMOP")
+stopifnot(identical(state$connect_arguments$Database, "OMOP"))
+DBI::dbDisconnect(omop_default)
 
 Sys.setenv(DATAHUB_R_DB_PROFILE = "OMOP")
 shortcut_connection <- check_environment$datahub_connect()
@@ -227,9 +233,9 @@ stopifnot(
       TrustServerCertificate = "yes"
     )
   ),
-  identical(state$disconnects, 4L)
+  identical(state$disconnects, 5L)
 )
 DBI::dbDisconnect(shortcut_connection)
-stopifnot(identical(state$disconnects, 5L))
+stopifnot(identical(state$disconnects, 6L))
 
 message("connection checker tests passed")

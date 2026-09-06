@@ -38,13 +38,9 @@ datahub_r_check <- function(profile = Sys.getenv(
     stop("ODBC Driver 18 for SQL Server is not registered")
   }
 
-  profile <- datahub_r_database_profile(profile)
-  config <- datahub_r_database_config(profile)
-
-  message("required ", profile, " environment variables are available")
-
-  con <- datahub_r_database_connect(config = config)
+  con <- datahub_connect(profile)
   on.exit(DBI::dbDisconnect(con), add = TRUE)
+  profile <- toupper(profile)
 
   probe <- DBI::dbGetQuery(con, "SELECT 1 AS ok")
 

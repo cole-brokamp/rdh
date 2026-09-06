@@ -48,7 +48,7 @@ fi
 
 rg -q 'needenv::needenv[(]' container/database.R
 rg -q 'DATAHUB_R_DB_PROFILE' container/database.R
-rg -q '^datahub_connect <- function[(]' container/database.R
+rg -q '^datahub_connect <- local[(]' container/database.R
 rg -Fq 'sys.source("/opt/datahub-r/database.R", envir = globalenv())' container/Rprofile.site
 rg -Fq 'env!("DATAHUB_R_VERSION")' src/main.rs
 rg -Fq 'cargo:rustc-env=DATAHUB_R_VERSION' build.rs
