@@ -350,6 +350,8 @@ fn run_apptainer(
     forwarded: &[(String, OsString)],
 ) -> Result<ExitStatus, String> {
     let working_directory = canonical_working_directory()?;
+    let data_directory = data_root()?;
+    create_private_directory(&data_directory)?;
     let mut arguments = vec![
         OsString::from("exec"),
         OsString::from("--cleanenv"),
@@ -359,6 +361,8 @@ fn run_apptainer(
             working_directory.display(),
             working_directory.display()
         )),
+        OsString::from("--bind"),
+        OsString::from(format!("{}:{CONTAINER_DATA_DIR}", data_directory.display())),
         OsString::from("--cwd"),
         working_directory.as_os_str().to_owned(),
         image.as_os_str().to_owned(),
@@ -369,6 +373,10 @@ fn run_apptainer(
     for (name, value) in forwarded {
         environment.push((format!("APPTAINERENV_{name}"), value.clone()));
     }
+    environment.push((
+        "APPTAINERENV_DATAHUB_R_DATA_DIR".to_owned(),
+        OsString::from(CONTAINER_DATA_DIR),
+    ));
     runtime::run(RuntimeKind::Apptainer, &arguments, &environment)
 }
 
@@ -421,6 +429,10 @@ fn run_oci(
     for (name, _) in forwarded {
         arguments.extend(os_strings(&["--env", name]));
     }
+    arguments.extend(os_strings(&[
+        "--env",
+        &format!("DATAHUB_R_DATA_DIR={CONTAINER_DATA_DIR}"),
+    ]));
     arguments.extend(os_strings(&[
         "--volume",
         &format!(

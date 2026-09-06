@@ -17,11 +17,12 @@ local({
 
   r_minor <- strsplit(R.version[["minor"]], ".", fixed = TRUE)[[1L]][1L]
   r_major_minor <- paste(R.version[["major"]], r_minor, sep = ".")
+  data_root <- Sys.getenv(
+    "DATAHUB_R_DATA_DIR",
+    unset = path.expand("~/.local/share/datahub-r")
+  )
   user_library <- file.path(
-    path.expand("~"),
-    ".local",
-    "share",
-    "datahub-r",
+    data_root,
     "v1",
     paste0("R-", r_major_minor),
     "library"

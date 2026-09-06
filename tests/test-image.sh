@@ -42,6 +42,7 @@ run_rscript() {
   container run --rm \
     --platform "$platform" \
     --env HOME=/home/datahub-test \
+    --env DATAHUB_R_DATA_DIR=/home/datahub-test/custom-data \
     --mount "type=bind,source=$home_dir,target=/home/datahub-test" \
     --mount "type=bind,source=$project_dir,target=/project" \
     --workdir /project \
@@ -108,6 +109,7 @@ run_export_only -e '
 '
 
 run_rscript -e 'install.packages("fortunes", lib = .libPaths()[[1L]], dependencies = NA)'
+run_rscript -e 'stopifnot(startsWith(.libPaths()[[1L]], "/home/datahub-test/custom-data/"))'
 run_rscript -e '
   stopifnot(
     requireNamespace("fortunes", quietly = TRUE),
