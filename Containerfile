@@ -5,9 +5,6 @@ ARG BASE_IMAGE
 ARG R_VERSION
 ARG MS_REPO_DEB_SHA256=c13f01ac7c3001b51a9281d40dde666db5e037e05512840c319832f7852bfec4
 ARG MSODBCSQL_VERSION=18.6.2.1-1
-ARG DATAHUB_R_VERSION
-ARG VCS_REF=uncommitted
-ARG PACKAGE_LOCK_SHA256=unknown
 ARG PPM_REPO
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -79,31 +76,22 @@ COPY container/Rprofile.site "/opt/R/${R_VERSION}/lib/R/etc/Rprofile.site"
 COPY container/database.R /opt/datahub-r/database.R
 COPY container/check.R /opt/datahub-r/check.R
 COPY container/smoke.R /opt/datahub-r/smoke.R
-COPY container/version.R /opt/datahub-r/version.R
+
+ARG DATAHUB_R_VERSION
 
 # VERSION is the release-version authority. The build caller supplies the same
 # value as an argument so OCI metadata cannot silently drift from the checkout.
 RUN test -n "${DATAHUB_R_VERSION}" \
     && test "$(tr -d '\r\n' < /opt/datahub-r/VERSION)" = "${DATAHUB_R_VERSION}"
 
-# This frequently changing argument is intentionally declared after the
-# expensive OS and R package layers so repeat builds can reuse them.
-ARG BUILD_DATE=unknown
-
-RUN printf '%s\n' \
-        "DATAHUB_R_VERSION=${DATAHUB_R_VERSION}" \
-        "R_VERSION=${R_VERSION}" \
-        "MSODBCSQL_VERSION=${MSODBCSQL_VERSION}" \
-        "PPM_REPO=${PPM_REPO}" \
-        "PACKAGE_LOCK_SHA256=${PACKAGE_LOCK_SHA256}" \
-        "BUILD_DATE=${BUILD_DATE}" \
-        "VCS_REF=${VCS_REF}" \
-        > /opt/datahub-r/build-metadata \
-    && chmod -R a=rX /opt/datahub-r \
+RUN chmod -R a=rX /opt/datahub-r \
     && Rscript /opt/datahub-r/smoke.R
 
-# Keep build-specific labels after expensive dependency layers so changing the
-# build date or source revision does not invalidate the package installation.
+# Build metadata belongs to the OCI labels and does not invalidate dependency layers.
+ARG BUILD_DATE=unknown
+ARG VCS_REF=uncommitted
+ARG PACKAGE_LOCK_SHA256=unknown
+
 LABEL org.opencontainers.image.title="datahub-r" \
       org.opencontainers.image.description="R environment for CCHMC DataHub SQL Server work" \
       org.opencontainers.image.version="${DATAHUB_R_VERSION}" \
