@@ -1,4 +1,9 @@
 rdh_connect <- local({
+  # FreeTDS uses ODBC brace quoting, with doubled closing braces in values.
+  quote_value <- function(value) {
+    paste0("{", gsub("}", "}}", value, fixed = TRUE), "}")
+  }
+
   database_config <- function(profile) {
     if (
       length(profile) != 1L ||
@@ -37,13 +42,16 @@ rdh_connect <- local({
     config <- database_config(profile)
     DBI::dbConnect(
       odbc::odbc(),
-      Driver = "ODBC Driver 18 for SQL Server",
-      Server = config$host,
-      Database = config$database,
-      UID = config$username,
-      PWD = config$password,
-      Encrypt = "yes",
-      TrustServerCertificate = "yes"
+      Driver = "FreeTDS",
+      Server = quote_value(sub("^tcp:", "", config$host, ignore.case = TRUE)),
+      Database = quote_value(config$database),
+      UID = quote_value(config$username),
+      PWD = quote_value(config$password),
+      TDS_Version = "7.4",
+      UseNTLMv2 = "yes",
+      Encryption = "require",
+      ClientCharset = "UTF-8",
+      bigint = "integer64"
     )
   }
 })

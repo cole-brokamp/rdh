@@ -29,6 +29,7 @@ set -euo pipefail
 printf '%s\n' "$@" > "$RDH_TEST_ARGS_LOG"
 {
   printf 'profile=%s\n' "${RDH_DB_PROFILE:-}"
+  printf 'username=%s\n' "${MBHI_DB_USERNAME:-}"
   printf 'custom=%s\n' "${CUSTOM_SETTING:-}"
 } > "$RDH_TEST_ENV_LOG"
 if [[ "${1:-}" == "image" && "${2:-}" == "pull" ]]; then
@@ -48,6 +49,7 @@ printf '%s\n' "$@" > "$RDH_TEST_ARGS_LOG"
 {
   printf 'profile=%s\n' "${APPTAINERENV_RDH_DB_PROFILE:-}"
   printf 'host=%s\n' "${APPTAINERENV_MBHI_DB_HOST:-}"
+  printf 'username=%s\n' "${APPTAINERENV_MBHI_DB_USERNAME:-}"
   printf 'custom=%s\n' "${APPTAINERENV_CUSTOM_SETTING:-}"
   printf 'inherited_rlibs=%s\n' "${APPTAINERENV_R_LIBS_USER:-}"
   printf 'inherited_unrelated=%s\n' "${SINGULARITYENV_UNRELATED:-}"
@@ -66,7 +68,7 @@ export RDH_IMAGE="docker://example.invalid/rdh@sha256:0123456789abcdef"
 export RDH_CACHE_DIR="$cache_dir"
 export RDH_DATA_DIR="$data_dir"
 export MBHI_DB_HOST="host-secret"
-export MBHI_DB_USERNAME="user-secret"
+export MBHI_DB_USERNAME='chmcres\user-secret'
 export MBHI_DB_PASSWORD="password-secret"
 export OMOP_DB_HOST="omop-host-secret"
 export OMOP_DB_NAME="omop_cdm"
@@ -113,6 +115,7 @@ rg -Fxq -- '--example' "$runtime_args"
 rg -Fxq -- '--uid' "$runtime_args"
 rg -Fxq -- '--gid' "$runtime_args"
 rg -Fxq 'profile=MBHI' "$runtime_env"
+rg -Fxq 'username=chmcres\user-secret' "$runtime_env"
 rg -Fxq 'custom=custom-secret' "$runtime_env"
 
 if rg -q 'host-secret|user-secret|password-secret|custom-secret' "$runtime_args"; then
@@ -121,6 +124,7 @@ if rg -q 'host-secret|user-secret|password-secret|custom-secret' "$runtime_args"
 fi
 
 "$binary" --runtime docker Rscript analysis.R
+rg -Fxq 'username=chmcres\user-secret' "$runtime_env"
 rg -Fxq -- '--user' "$runtime_args"
 if rg -Fxq -- '--uid' "$runtime_args" || rg -Fxq -- '--gid' "$runtime_args"; then
   echo "Docker unexpectedly received Apple container identity flags" >&2
@@ -128,6 +132,7 @@ if rg -Fxq -- '--uid' "$runtime_args" || rg -Fxq -- '--gid' "$runtime_args"; the
 fi
 
 "$binary" --runtime podman Rscript analysis.R
+rg -Fxq 'username=chmcres\user-secret' "$runtime_env"
 rg -Fxq -- '--userns=keep-id' "$runtime_args"
 if rg -Fxq -- '--user' "$runtime_args"; then
   echo "Podman unexpectedly received Docker's user flag" >&2
@@ -169,15 +174,22 @@ export APPTAINERENV_R_LIBS_USER="/host/module/library"
 export SINGULARITYENV_UNRELATED="old-forwarding"
 "$binary" --runtime apptainer --env CUSTOM_SETTING Rscript analysis.R
 rg -Fxq -- '--cleanenv' "$runtime_args"
+rg -Fxq -- '--no-eval' "$runtime_args"
 rg -Fxq 'Rscript' "$runtime_args"
 rg -Fxq 'analysis.R' "$runtime_args"
 rg -Fxq 'profile=MBHI' "$runtime_env"
 rg -Fxq 'host=host-secret' "$runtime_env"
+rg -Fxq 'username=chmcres\user-secret' "$runtime_env"
 rg -Fxq 'custom=custom-secret' "$runtime_env"
 rg -Fxq 'inherited_rlibs=' "$runtime_env"
 rg -Fxq 'inherited_unrelated=' "$runtime_env"
 rg -Fxq -- "$data_dir:/home/rdh/.local/share/rdh" "$runtime_args"
 rg -Fxq 'data=/home/rdh/.local/share/rdh' "$runtime_env"
+
+if rg -q 'host-secret|user-secret|password-secret|custom-secret' "$runtime_args"; then
+  echo "an environment value leaked into Apptainer arguments" >&2
+  exit 1
+fi
 
 if "$binary" --runtime container --env CUSTOM_SETTING=value R >/dev/null 2>&1; then
   echo "NAME=value unexpectedly accepted" >&2

@@ -49,6 +49,8 @@ test-static:
 
 test-image: build
   bash tests/test-image.sh "{{image}}"
+  cargo build
+  bash tests/test-credentials.sh target/debug/rdh container "{{image}}"
   bash tests/test-layers.sh "{{image}}"
 
 test: test-static test-image

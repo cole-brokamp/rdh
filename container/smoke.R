@@ -31,6 +31,6 @@ stopifnot(
 
 drivers <- odbc::odbcListDrivers()
 driver_names <- if (ncol(drivers) > 0L) as.character(drivers[[1L]]) else character()
-stopifnot("ODBC Driver 18 for SQL Server" %in% driver_names)
+stopifnot("FreeTDS" %in% driver_names)
 
 message("rdh image smoke test passed")

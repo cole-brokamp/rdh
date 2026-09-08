@@ -355,6 +355,7 @@ fn run_apptainer(
     let mut arguments = vec![
         OsString::from("exec"),
         OsString::from("--cleanenv"),
+        OsString::from("--no-eval"),
         OsString::from("--bind"),
         OsString::from(format!(
             "{}:{}",

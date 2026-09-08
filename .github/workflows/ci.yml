@@ -8,6 +8,39 @@ permissions:
   contents: read
 
 jobs:
+  sqlserver:
+    name: FreeTDS SQL Server integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the database image
+        run: |
+          source image.conf
+          docker build --file Containerfile --tag rdh:ci \
+            --build-arg "BASE_IMAGE=$BASE_IMAGE" \
+            --build-arg "R_VERSION=$R_VERSION" \
+            --build-arg "PPM_REPO=$PPM_REPO" \
+            --build-arg "RDH_VERSION=$(cat VERSION)" .
+      - name: Exercise SQL authentication and DBI/dbplyr operations
+        run: bash tests/test-sqlserver.sh rdh:ci
+      - name: Install Linux runtimes
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/apptainer.deb" \
+            https://github.com/apptainer/apptainer/releases/download/v1.4.2/apptainer_1.4.2_amd64.deb
+          sudo apt-get update
+          sudo apt-get install --yes podman "$RUNNER_TEMP/apptainer.deb"
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - name: Check credentials across Linux runtimes
+        run: |
+          cargo build --locked
+          bash tests/test-credentials.sh target/debug/rdh docker rdh:ci
+          docker save rdh:ci --output "$RUNNER_TEMP/rdh.tar"
+          podman load --input "$RUNNER_TEMP/rdh.tar"
+          bash tests/test-credentials.sh target/debug/rdh podman localhost/rdh:ci
+          apptainer build "$RUNNER_TEMP/rdh.sif" "docker-archive:$RUNNER_TEMP/rdh.tar"
+          bash tests/test-credentials.sh target/debug/rdh apptainer "$RUNNER_TEMP/rdh.sif"
+
   checks:
     runs-on: ubuntu-24.04
     steps:

@@ -34,8 +34,8 @@ rdh_check <- function(profile = Sys.getenv(
     character()
   }
 
-  if (!"ODBC Driver 18 for SQL Server" %in% driver_names) {
-    stop("ODBC Driver 18 for SQL Server is not registered")
+  if (!"FreeTDS" %in% driver_names) {
+    stop("FreeTDS is not registered")
   }
 
   con <- rdh_connect(profile)
@@ -53,10 +53,24 @@ rdh_check <- function(profile = Sys.getenv(
     stop(profile, " connection probe returned an unexpected result")
   }
 
+  authentication <- DBI::dbGetQuery(
+    con,
+    "SELECT CAST(CONNECTIONPROPERTY('auth_scheme') AS varchar(20)) AS auth_scheme"
+  )
+  if (
+    nrow(authentication) != 1L ||
+      ncol(authentication) != 1L ||
+      is.na(authentication[[1L]][1L]) ||
+      !authentication[[1L]][1L] %in% c("SQL", "NTLM", "KERBEROS")
+  ) {
+    stop(profile, " connection returned an unexpected authentication scheme")
+  }
+
   message("R ", as.character(getRversion()))
   message("user library: ", .libPaths()[[1L]])
   message("CRAN repository: ", active_cran)
-  message("ODBC Driver 18 for SQL Server is registered")
+  message("FreeTDS is registered")
+  message("authentication: ", authentication[[1L]][1L])
   message(profile, " connection probe succeeded")
 
   invisible(TRUE)

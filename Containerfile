@@ -3,8 +3,7 @@ FROM ${BASE_IMAGE}
 
 ARG BASE_IMAGE
 ARG R_VERSION
-ARG MS_REPO_DEB_SHA256=c13f01ac7c3001b51a9281d40dde666db5e037e05512840c319832f7852bfec4
-ARG MSODBCSQL_VERSION=18.6.2.1-1
+ARG FREETDS_VERSION=1.3.17+ds-2build3
 ARG PPM_REPO
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -27,14 +26,12 @@ RUN case "$(dpkg --print-architecture)" in \
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        apt-transport-https \
         build-essential \
         ca-certificates \
         cmake \
         curl \
         gfortran \
         git \
-        gnupg \
         libcurl4-openssl-dev \
         libicu-dev \
         libssl-dev \
@@ -42,21 +39,11 @@ RUN apt-get update \
         locales \
         make \
         pkg-config \
+        "tdsodbc=${FREETDS_VERSION}" \
         unixodbc \
         unixodbc-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN curl --fail --location --silent --show-error \
-        "https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb" \
-        --output /tmp/packages-microsoft-prod.deb \
-    && echo "${MS_REPO_DEB_SHA256}  /tmp/packages-microsoft-prod.deb" | sha256sum --check --strict \
-    && dpkg -i /tmp/packages-microsoft-prod.deb \
-    && rm -f /tmp/packages-microsoft-prod.deb \
-    && apt-get update \
-    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends \
-        "msodbcsql18=${MSODBCSQL_VERSION}" \
     && rm -rf /var/lib/apt/lists/* \
-    && odbcinst -q -d | grep -Fx '[ODBC Driver 18 for SQL Server]'
+    && odbcinst -q -d | grep -Fx '[FreeTDS]'
 
 RUN install -d -o root -g root -m 0755 \
         /opt/rdh \
@@ -76,6 +63,7 @@ COPY container/Rprofile.site "/opt/R/${R_VERSION}/lib/R/etc/Rprofile.site"
 COPY container/database.R /opt/rdh/database.R
 COPY container/check.R /opt/rdh/check.R
 COPY container/smoke.R /opt/rdh/smoke.R
+COPY container/test-connection.R /opt/rdh/test-connection.R
 
 ARG RDH_VERSION
 
@@ -99,7 +87,7 @@ LABEL org.opencontainers.image.title="rdh" \
       org.opencontainers.image.revision="${VCS_REF}" \
       org.opencontainers.image.base.name="${BASE_IMAGE}" \
       io.rdh.r.version="${R_VERSION}" \
-      io.rdh.msodbcsql.version="${MSODBCSQL_VERSION}" \
+      io.rdh.freetds.version="${FREETDS_VERSION}" \
       io.rdh.package-lock.sha256="${PACKAGE_LOCK_SHA256}" \
       io.rdh.cran.repository="${PPM_REPO}"
 
