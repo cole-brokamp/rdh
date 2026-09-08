@@ -169,7 +169,7 @@ jobs:
           gh release create "$GITHUB_REF_NAME" dist/* \
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
-            --notes-file RELEASE_NOTES.md \
+            --generate-notes \
             --title "rdh ${{ needs.validate.outputs.version }}"
 
   homebrew:

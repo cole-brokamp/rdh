@@ -125,19 +125,6 @@ export MY_SETTING=value
 rdh --env MY_SETTING Rscript analysis.R
 ```
 
-## Upgrading from datahub-r
-
-The command is now `rdh`, and the R connection helper is `rdh_connect()`.
-Launcher settings use the `RDH_` prefix instead of `DATAHUB_R_`; database credentials such as `MBHI_DB_HOST` keep their names.
-Install the new command using the instructions above and update scripts to use these names.
-
-Package libraries and image caches now use directories named `rdh`.
-To reuse an existing package library, point `RDH_DATA_DIR` at its previous location, for example:
-
-```sh
-export RDH_DATA_DIR="$HOME/.local/share/datahub-r"
-```
-
 ## Technical notes
 
 - The current release is `2026.09.2`.

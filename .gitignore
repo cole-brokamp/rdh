@@ -5,3 +5,4 @@
 build/
 dist/
 target/
+/RELEASE_NOTES.md
