@@ -16,18 +16,18 @@ local({
     test_text = c("\u00e9\u6f22", NA_character_),
     nullable = c(NA_integer_, 7L)
   )
+  # FreeTDS 1.3.17 drops fractional seconds when binding native POSIXct values.
+  # ISO timestamp text lets SQL Server preserve the target datetime2 precision.
+  to_write <- expected
+  to_write$test_time <- format(expected$test_time, "%Y-%m-%dT%H:%M:%OS6", tz = "UTC")
   DBI::dbWriteTable(
-    con, "#rdh_roundtrip", expected, temporary = TRUE,
+    con, "#rdh_roundtrip", to_write, temporary = TRUE,
     # odbc converts integer64 to decimal text before inferring write types.
     field.types = c(big_id = "bigint", test_text = "nvarchar(100)", test_time = "datetime2(3)")
   )
   actual <- dplyr::tbl(con, "#rdh_roundtrip") |>
     dplyr::arrange(id) |>
     dplyr::collect()
-  # The fixture is entirely synthetic; retain useful type/precision diagnostics.
-  print(as.data.frame(actual))
-  message("timestamp difference in seconds: ",
-    as.numeric(actual$test_time[[1L]]) - as.numeric(expected$test_time[[1L]]))
   stopifnot(
     identical(actual$id, expected$id),
     inherits(actual$big_id, "integer64"),

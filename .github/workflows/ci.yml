@@ -41,7 +41,7 @@ jobs:
           bash tests/test-credentials.sh target/debug/rdh docker rdh:ci
           docker save rdh:ci --output "$RUNNER_TEMP/rdh.tar"
           podman load --input "$RUNNER_TEMP/rdh.tar"
-          bash tests/test-credentials.sh target/debug/rdh podman localhost/rdh:ci
+          bash tests/test-credentials.sh target/debug/rdh podman docker.io/library/rdh:ci
           apptainer build "$RUNNER_TEMP/rdh.sif" "docker-archive:$RUNNER_TEMP/rdh.tar"
           bash tests/test-credentials.sh target/debug/rdh apptainer "$RUNNER_TEMP/rdh.sif"
 
