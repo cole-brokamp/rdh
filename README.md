@@ -87,6 +87,7 @@ DBI::dbDisconnect(con)
 
 `rdh_connect()` returns a normal DBI connection and does not disconnect automatically.
 FreeTDS supplies the SQL Server connection, so existing dplyr and dbplyr pipelines continue to use SQL Server SQL translation.
+For writes with `DBI::dbWriteTable()`, specify SQL column types when precision matters, such as `field.types = c(big_id = "bigint", test_time = "datetime2(3)")`.
 Host, username, and password are required; the database name defaults to the uppercase profile name when omitted or empty.
 Hosts may include a port (`server,1433`) or named instance (`server\instance`).
 

@@ -18,7 +18,8 @@ local({
   )
   DBI::dbWriteTable(
     con, "#rdh_roundtrip", expected, temporary = TRUE,
-    field.types = c(test_text = "nvarchar(100)", test_time = "datetime2(3)")
+    # odbc converts integer64 to decimal text before inferring write types.
+    field.types = c(big_id = "bigint", test_text = "nvarchar(100)", test_time = "datetime2(3)")
   )
   actual <- dplyr::tbl(con, "#rdh_roundtrip") |>
     dplyr::arrange(id) |>
