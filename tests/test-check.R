@@ -123,17 +123,30 @@ local({
 
   Sys.setenv(
     MBHI_DB_HOST = "tcp:host-secret,1444", MBHI_DB_USERNAME = "chmcres\\user-secret",
-    MBHI_DB_PASSWORD = " ;{pa}ss;'\"= word} ", MBHI_DB_NAME = "db};UID=other"
+    MBHI_DB_PASSWORD = " ;{pa}ss;'\"= word} ", MBHI_DB_NAME = "db;UID=other}"
   )
   messages <- capture.output(check_environment$rdh_check(), type = "message")
   stopifnot(
     identical(state$connect_arguments$Server, "{host-secret,1444}"),
     identical(state$connect_arguments$UID, "{chmcres\\user-secret}"),
-    identical(state$connect_arguments$PWD, "{ ;{pa}}ss;'\"= word}} }"),
-    identical(state$connect_arguments$Database, "{db}};UID=other}"),
+    identical(state$connect_arguments$PWD, "{ ;{pa}ss;'\"= word} }"),
+    identical(state$connect_arguments$Database, "{db;UID=other}}"),
     "authentication: NTLM" %in% messages,
     !grepl("user-secret|pa.*ss|UID=other", paste(messages, collapse = "\n"))
   )
+
+  # This old driver cannot encode its own brace/semicolon terminator.
+  # Reject it before connecting, without exposing the affected value.
+  for (variable in c(required, "MBHI_DB_NAME")) {
+    original <- Sys.getenv(variable)
+    do.call(Sys.setenv, setNames(list("secret};UID=other"), variable))
+    condition <- expect_failure(disconnects = 0L, connects = 0L)
+    stopifnot(
+      grepl("cannot represent the sequence };", conditionMessage(condition), fixed = TRUE),
+      !grepl("secret|UID=other", conditionMessage(condition))
+    )
+    do.call(Sys.setenv, setNames(list(original), variable))
+  }
 
   old_repos <- getOption("repos")
   on.exit(options(repos = old_repos), add = TRUE)

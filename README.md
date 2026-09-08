@@ -116,6 +116,7 @@ Keep the single backslash inside the quotes exactly as shown.
 Bare usernames use SQL Server authentication; domain-qualified usernames use NTLM.
 The helper passes the username unchanged and does not add a domain or retry another authentication method.
 Passwords and other connection values are escaped for FreeTDS, including semicolons and closing braces.
+The pinned FreeTDS version cannot represent a closing brace immediately followed by a semicolon (`};`) inside a value; the helper rejects that sequence before connecting.
 When entering a password in `.Renviron`, choose surrounding quotes that do not occur in the password and follow R's `.Renviron` quoting rules.
 `rdh check` reports the server's authentication scheme without printing credentials.
 

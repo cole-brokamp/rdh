@@ -1,7 +1,14 @@
 rdh_connect <- local({
-  # FreeTDS uses ODBC brace quoting, with doubled closing braces in values.
+  # FreeTDS 1.3.17 reads brace-quoted values literally until the first };.
+  # It does not implement the doubled-brace escape used by newer drivers.
   quote_value <- function(value) {
-    paste0("{", gsub("}", "}}", value, fixed = TRUE), "}")
+    if (grepl("};", value, fixed = TRUE)) {
+      stop(
+        "FreeTDS 1.3.17 cannot represent the sequence }; in a connection value",
+        call. = FALSE
+      )
+    }
+    paste0("{", value, "}")
   }
 
   database_config <- function(profile) {
@@ -40,13 +47,15 @@ rdh_connect <- local({
 
   function(profile = Sys.getenv("RDH_DB_PROFILE", unset = "MBHI")) {
     config <- database_config(profile)
+    config$host <- sub("^tcp:", "", config$host, ignore.case = TRUE)
+    config <- lapply(config, quote_value)
     DBI::dbConnect(
       odbc::odbc(),
       Driver = "FreeTDS",
-      Server = quote_value(sub("^tcp:", "", config$host, ignore.case = TRUE)),
-      Database = quote_value(config$database),
-      UID = quote_value(config$username),
-      PWD = quote_value(config$password),
+      Server = config$host,
+      Database = config$database,
+      UID = config$username,
+      PWD = config$password,
       TDS_Version = "7.4",
       UseNTLMv2 = "yes",
       Encryption = "require",
