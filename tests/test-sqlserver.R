@@ -24,6 +24,10 @@ local({
   actual <- dplyr::tbl(con, "#rdh_roundtrip") |>
     dplyr::arrange(id) |>
     dplyr::collect()
+  # The fixture is entirely synthetic; retain useful type/precision diagnostics.
+  print(as.data.frame(actual))
+  message("timestamp difference in seconds: ",
+    as.numeric(actual$test_time[[1L]]) - as.numeric(expected$test_time[[1L]]))
   stopifnot(
     identical(actual$id, expected$id),
     inherits(actual$big_id, "integer64"),

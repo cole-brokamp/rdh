@@ -15,6 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the database image
+        id: image
         run: |
           source image.conf
           docker build --file Containerfile --tag rdh:ci \
@@ -25,6 +26,8 @@ jobs:
       - name: Exercise SQL authentication and DBI/dbplyr operations
         run: bash tests/test-sqlserver.sh rdh:ci
       - name: Install Linux runtimes
+        id: runtimes
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: |
           curl -fsSL -o "$RUNNER_TEMP/apptainer.deb" \
             https://github.com/apptainer/apptainer/releases/download/v1.4.2/apptainer_1.4.2_amd64.deb
@@ -32,6 +35,7 @@ jobs:
           sudo apt-get install --yes podman "$RUNNER_TEMP/apptainer.deb"
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - name: Check credentials across Linux runtimes
+        if: ${{ !cancelled() && steps.runtimes.outcome == 'success' }}
         run: |
           cargo build --locked
           bash tests/test-credentials.sh target/debug/rdh docker rdh:ci
