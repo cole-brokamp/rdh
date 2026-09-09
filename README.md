@@ -1,8 +1,8 @@
 # rdh
 
-`rdh` (R Data Hub) gives you the same ready-to-use R environment on a laptop, workstation, or computing cluster.
+`rdh` (R Data Hub) gives you a ready-to-use R environment for connecting to SQL Server with your domain credentials using NTLM.
 It includes tools for querying SQL Server databases, saving extracts, and writing data when your account has permission.
-It runs through an available container runtime.
+It runs on macOS and Linux through an available container runtime.
 
 ## Install
 
@@ -10,7 +10,6 @@ First, make sure one supported container runtime is available:
 
 - macOS: Apple container, Docker, or Podman
 - Linux: Docker, Podman, or Apptainer
-- CCHMC cluster: Apptainer is detected and its module is loaded automatically
 
 Then install `rdh`:
 
@@ -36,37 +35,21 @@ curl -fsSL https://raw.githubusercontent.com/cole-brokamp/rdh/main/install.sh \
 
 You can also download an archive directly from [GitHub Releases](https://github.com/cole-brokamp/rdh/releases).
 
-## Start using it
+## Connect with NTLM
 
-Start an interactive R session in the current directory:
-
-```sh
-rdh
-```
-
-Run an R script:
-
-```sh
-rdh Rscript analysis.R
-```
-
-Install an R package normally.
-It will remain available the next time you use `rdh`:
-
-```r
-install.packages("ggplot2")
-```
-
-## Connect to a database
-
+Use NTLM with your CCHMC username and password, including the `chmcres` domain in your username.
 Create a `.Renviron` file in your project directory:
 
 ```text
-MBHI_DB_HOST=...
+MBHI_DB_HOST=your_sql_server,1433
 MBHI_DB_NAME=MBHI
-MBHI_DB_USERNAME=...
-MBHI_DB_PASSWORD=...
+MBHI_DB_USERNAME='chmcres\your_username'
+MBHI_DB_PASSWORD='your_password'
 ```
+
+Keep the single backslash inside the quotes exactly as shown.
+The domain-qualified username selects NTLM authentication.
+`rdh_connect()` passes it unchanged, so include the domain yourself.
 
 Protect the file and confirm the connection:
 
@@ -75,7 +58,8 @@ chmod 600 .Renviron
 rdh check
 ```
 
-Inside R, connect with:
+`rdh check` should report `authentication: NTLM` without printing your credentials.
+Start R with `rdh`, then connect:
 
 ```r
 con <- rdh_connect()
@@ -87,26 +71,20 @@ DBI::dbDisconnect(con)
 
 `rdh_connect()` returns a normal DBI connection and does not disconnect automatically.
 FreeTDS supplies the SQL Server connection, so existing dplyr and dbplyr pipelines continue to use SQL Server SQL translation.
-For writes with `DBI::dbWriteTable()`, specify SQL column types when precision matters, such as `field.types = c(big_id = "bigint", test_time = "datetime2(3)")`.
-Native `POSIXct` writes through the pinned driver drop fractional seconds; to preserve milliseconds, first convert the timestamp column with `format(x, "%Y-%m-%dT%H:%M:%OS6", tz = "UTC")` and write those strings into an explicit `datetime2(3)` column.
-Timestamp reads preserve fractional seconds.
 Host, username, and password are required; the database name defaults to the uppercase profile name when omitted or empty.
 Hosts may include a port (`server,1433`) or named instance (`server\instance`).
 
-For another database profile, use matching variable names such as `OMOP_DB_HOST`, `OMOP_DB_NAME`, `OMOP_DB_USERNAME`, and `OMOP_DB_PASSWORD`.
-Select that profile when starting the script:
+For a more complete connection check, run the bundled read-only test:
 
 ```sh
-rdh --db OMOP Rscript analysis.R
+rdh Rscript /opt/rdh/test-connection.R
 ```
 
-You can also select it directly in R:
+It uses synthetic queries to check SQL Server class detection, dbplyr filters and joins, exact large integers, dates and timestamps, Unicode, and nulls, then closes its connection.
 
-```r
-con <- rdh_connect("OMOP")
-```
+## Use another database profile
 
-For CCHMC domain credentials, use a domain-qualified username in `.Renviron`:
+Use matching variable names for another database, with the same NTLM credential format:
 
 ```text
 OMOP_DB_HOST=ritepicprod02ms,1433
@@ -115,35 +93,37 @@ OMOP_DB_USERNAME='chmcres\your_username'
 OMOP_DB_PASSWORD='your_password'
 ```
 
-Keep the single backslash inside the quotes exactly as shown.
-Bare usernames use SQL Server authentication; domain-qualified usernames use NTLM.
-The helper passes the username unchanged and does not add a domain or retry another authentication method.
-Passwords and other connection values are escaped for FreeTDS, including semicolons and closing braces.
-The pinned FreeTDS version cannot represent a closing brace immediately followed by a semicolon (`};`) inside a value; the helper rejects that sequence before connecting.
-When entering a password in `.Renviron`, choose surrounding quotes that do not occur in the password and follow R's `.Renviron` quoting rules.
-`rdh check` reports the server's authentication scheme without printing credentials.
-
-## CCHMC cluster
-
-Start a compute session with `bsi` before running the container.
-The observed login node cannot run the cluster's Apptainer build because its glibc is too old.
-`rdh` loads the Apptainer module automatically when needed.
-
-Upgrade to this release, then run the connection checks from the directory containing `.Renviron`:
+Select that profile when checking the connection or starting a script:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/cole-brokamp/rdh/v2026.09.3/install.sh \
-  | sh -s -- --version 2026.09.3 --no-pull
-bsi
-cd /path/to/your/project
-rdh version
 rdh --db OMOP check
-rdh --db OMOP Rscript /opt/rdh/test-connection.R
+rdh --db OMOP Rscript analysis.R
 ```
 
-The bundled acceptance script uses synthetic, read-only queries to check SQL Server class detection, dbplyr filters and joins, exact large integers, dates and timestamps, Unicode, and nulls.
-It closes its connection after the checks and does not read application tables or write to the database.
-The [previous release](https://github.com/cole-brokamp/rdh/releases/tag/v2026.09.2) remains available for rollback; install it with `--version 2026.09.2`.
+You can also select it directly in R:
+
+```r
+con <- rdh_connect("OMOP")
+
+results <- DBI::dbGetQuery(con, "SELECT TOP 10 * FROM cdm.person")
+
+DBI::dbDisconnect(con)
+```
+
+## Run scripts and install packages
+
+Run an R script using your project's `.Renviron` credentials:
+
+```sh
+rdh Rscript analysis.R
+```
+
+Install an R package normally.
+It will remain available the next time you use `rdh`:
+
+```r
+install.packages("ggplot2")
+```
 
 ## Useful commands
 
@@ -160,7 +140,7 @@ The [previous release](https://github.com/cole-brokamp/rdh/releases/tag/v2026.09
 Use `--runtime` only when you need to override automatic runtime selection:
 
 ```sh
-rdh --runtime apptainer Rscript analysis.R
+rdh --runtime docker Rscript analysis.R
 ```
 
 Forward an additional exported environment variable by name with `--env`:
@@ -178,8 +158,13 @@ rdh --env MY_SETTING Rscript analysis.R
 - Certificate trust remains as before: the server certificate is accepted without CA validation.
 - Released executables are available for macOS and Linux on both AMD64 and ARM64.
 - Each executable is linked to an immutable multi-architecture image digest.
-- Apptainer images are cached under `/scratch/$USER/rdh` when available, otherwise under the user cache directory; set `RDH_CACHE_DIR` to override it.
+- Apptainer images are cached locally; set `RDH_CACHE_DIR` to choose the cache directory.
 - User-installed R packages persist under the user data directory; set `RDH_DATA_DIR` to override it.
 - Packages use Posit Public Package Manager by default.
 - `image.conf` defines the R version, base image, and package repository for local and release builds; `pkg.lock` defines required packages and their versions.
 - Database secrets are read from the selected profile's environment variables and are not placed in container command arguments.
+- Passwords and other connection values are escaped for FreeTDS, including semicolons and closing braces; the pinned driver cannot represent the sequence `};` inside a value, so the helper rejects it before connecting.
+- When entering a password in `.Renviron`, choose surrounding quotes that do not occur in the password and follow R's `.Renviron` quoting rules.
+- For writes with `DBI::dbWriteTable()`, specify SQL column types when precision matters, such as `field.types = c(big_id = "bigint", test_time = "datetime2(3)")`.
+- Native `POSIXct` writes through the pinned driver drop fractional seconds; to preserve milliseconds, first convert the timestamp column with `format(x, "%Y-%m-%dT%H:%M:%OS6", tz = "UTC")` and write those strings into an explicit `datetime2(3)` column.
+- Timestamp reads preserve fractional seconds.
