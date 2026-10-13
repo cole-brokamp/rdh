@@ -125,6 +125,29 @@ It will remain available the next time you use `rdh`:
 install.packages("ggplot2")
 ```
 
+## Access additional directories with Apptainer
+
+`rdh` binds your current project directory and its persistent R package directory automatically.
+To access another host directory, such as `/scratch` or `/data`, set `APPTAINER_BINDPATH` in your host shell before starting `rdh`:
+
+```sh
+export APPTAINER_BINDPATH="/scratch,/data"
+rdh --runtime apptainer Rscript analysis.R
+```
+
+Use only directories that exist on your host, and separate multiple binds with commas.
+These directories are available at the same paths inside R, with read/write access by default and your existing filesystem permissions.
+For a different container path or read-only access, use `host_path:container_path[:ro]`:
+
+```sh
+APPTAINER_BINDPATH="/scratch:/work,/data:/data:ro" \
+  rdh --runtime apptainer Rscript analysis.R
+```
+
+Apptainer also accepts `APPTAINER_BIND` with the same syntax.
+Set these variables in your shell or job script, not in `.Renviron`; Apptainer reads them before R starts, so `rdh --env` is unnecessary for bind settings.
+See the [Apptainer bind documentation](https://apptainer.org/docs/user/main/bind_paths_and_mounts.html) for more options.
+
 ## Useful commands
 
 | Command | What it does |
