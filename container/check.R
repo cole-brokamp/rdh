@@ -6,8 +6,9 @@ rdh_check <- function(profile = Sys.getenv(
   "RDH_DB_PROFILE",
   unset = "MBHI"
 )) {
-  image_config <- readRDS("/opt/rdh/image-config.rds")
-  required_packages <- image_config$packages
+  lock <- pak:::json$parse_file("/opt/rdh/pkg.lock")
+  direct <- vapply(lock$packages, function(package) isTRUE(package$direct), logical(1L))
+  required_packages <- vapply(lock$packages[direct], `[[`, character(1L), "package")
 
   unavailable <- required_packages[
     !vapply(required_packages, requireNamespace, logical(1L), quietly = TRUE)
@@ -17,7 +18,7 @@ rdh_check <- function(profile = Sys.getenv(
     stop("required package(s) unavailable: ", paste(unavailable, collapse = ", "))
   }
 
-  expected_ppm <- image_config$ppm_repo
+  expected_ppm <- Sys.getenv("RDH_PPM_REPO")
   active_cran <- unname(getOption("repos")[["CRAN"]])
 
   if (!identical(active_cran, expected_ppm)) {

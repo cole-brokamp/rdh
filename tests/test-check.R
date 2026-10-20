@@ -93,6 +93,22 @@ local({
     )
     condition
   }
+
+  # Missing direct dependencies must fail before attempting a connection.
+  lock <- pak:::json$parse_file("/opt/rdh/pkg.lock")
+  direct <- Filter(function(package) isTRUE(package$direct), lock$packages)
+  missing_package <- direct[[1L]]$package
+  check_environment$requireNamespace <- function(package, ...) {
+    if (identical(package, missing_package)) return(FALSE)
+    base::requireNamespace(package, ...)
+  }
+  condition <- expect_failure(disconnects = 0L, connects = 0L)
+  stopifnot(identical(
+    conditionMessage(condition),
+    paste0("required package(s) unavailable: ", missing_package)
+  ))
+  rm("requireNamespace", envir = check_environment)
+
   state$query_error <- TRUE
   expect_failure()
   state$query_error <- FALSE
@@ -160,6 +176,13 @@ local({
     inherits(ppm_warning, "warning"),
     grepl("Posit Package Manager", conditionMessage(ppm_warning), fixed = TRUE)
   )
+  old_ppm <- Sys.getenv("RDH_PPM_REPO")
+  on.exit(Sys.setenv(RDH_PPM_REPO = old_ppm), add = TRUE)
+  Sys.setenv(RDH_PPM_REPO = "https://example.invalid/cran")
+  withCallingHandlers(check_environment$rdh_check(), warning = function(condition) {
+    stop("the checker did not honor RDH_PPM_REPO: ", conditionMessage(condition))
+  }, message = function(condition) invokeRestart("muffleMessage"))
+  Sys.setenv(RDH_PPM_REPO = old_ppm)
   options(repos = old_repos)
 
   Sys.setenv(

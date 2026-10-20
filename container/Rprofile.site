@@ -1,8 +1,6 @@
 local({
-  image_config <- readRDS("/opt/rdh/image-config.rds")
-
   options(
-    repos = c(CRAN = image_config$ppm_repo),
+    repos = c(CRAN = Sys.getenv("RDH_PPM_REPO")),
     HTTPUserAgent = sprintf(
       "R/%s R (%s)",
       getRversion(),

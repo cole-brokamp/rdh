@@ -72,7 +72,27 @@ container run --rm \
   --mount "type=bind,source=$home_dir,target=/home/rdh-test" \
   --entrypoint Rscript \
   "$image" \
-  /opt/rdh/smoke.R
+  -e '
+  stopifnot(!file.exists("/opt/rdh/image-config.rds"))
+  source("/opt/rdh/smoke.R")
+  Sys.setenv(R_VERSION = "0.0.0")
+  condition <- tryCatch(source("/opt/rdh/smoke.R"), error = identity)
+  stopifnot(inherits(condition, "error"))
+'
+
+container run --rm \
+  --platform "$platform" \
+  --env HOME=/home/rdh-test \
+  --env RDH_PPM_REPO=https://example.invalid/cran \
+  --mount "type=bind,source=$home_dir,target=/home/rdh-test" \
+  --entrypoint Rscript \
+  "$image" \
+  -e '
+  stopifnot(identical(
+    unname(getOption("repos")[["CRAN"]]),
+    "https://example.invalid/cran"
+  ))
+'
 
 container run --rm \
   --platform "$platform" \
@@ -94,7 +114,7 @@ container run --rm \
     identical(getOption("rdh.test.rprofile"), "loaded"),
     identical(
       unname(getOption("repos")[["CRAN"]]),
-      readRDS("/opt/rdh/image-config.rds")$ppm_repo
+      Sys.getenv("RDH_PPM_REPO")
     ),
     startsWith(.libPaths()[[1L]], path.expand("~/.local/share/rdh/"))
   )
