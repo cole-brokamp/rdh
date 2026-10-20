@@ -37,16 +37,17 @@ You can also download an archive directly from [GitHub Releases](https://github.
 
 ## Connect with NTLM
 
-Use NTLM with your CCHMC username and password, including the `chmcres` domain in your username.
+Use NTLM with your organization's username and password, including your domain in your username.
 Create a `.Renviron` file in your project directory:
 
 ```text
-MBHI_DB_HOST=your_sql_server,1433
+MBHI_DB_HOST=sql.example.invalid
 MBHI_DB_NAME=MBHI
-MBHI_DB_USERNAME='chmcres\your_username'
+MBHI_DB_USERNAME='YOUR_DOMAIN\your_username'
 MBHI_DB_PASSWORD='your_password'
 ```
 
+Replace the dummy host, `YOUR_DOMAIN`, and credentials with your own values.
 Keep the single backslash inside the quotes exactly as shown.
 The domain-qualified username selects NTLM authentication.
 `rdh_connect()` passes it unchanged, so include the domain yourself.
@@ -72,7 +73,6 @@ DBI::dbDisconnect(con)
 `rdh_connect()` returns a normal DBI connection and does not disconnect automatically.
 FreeTDS supplies the SQL Server connection, so existing dplyr and dbplyr pipelines continue to use SQL Server SQL translation.
 Host, username, and password are required; the database name defaults to the uppercase profile name when omitted or empty.
-Hosts may include a port (`server,1433`) or named instance (`server\instance`).
 
 For a more complete connection check, run the bundled read-only test:
 
@@ -87,9 +87,9 @@ It uses synthetic queries to check SQL Server class detection, dbplyr filters an
 Use matching variable names for another database, with the same NTLM credential format:
 
 ```text
-OMOP_DB_HOST=ritepicprod02ms,1433
+OMOP_DB_HOST=sql.example.invalid
 OMOP_DB_NAME=omop
-OMOP_DB_USERNAME='chmcres\your_username'
+OMOP_DB_USERNAME='YOUR_DOMAIN\your_username'
 OMOP_DB_PASSWORD='your_password'
 ```
 

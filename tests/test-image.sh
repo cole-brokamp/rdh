@@ -26,7 +26,7 @@ mkdir -p \
 cat > "$project_dir/.Renviron" <<'EOF_RENVIRON'
 RDH_TEST_RENVIRON=loaded
 MBHI_DB_HOST=renviron-host
-MBHI_DB_USERNAME='chmcres\renviron-user'
+MBHI_DB_USERNAME='EXAMPLE\renviron-user'
 MBHI_DB_PASSWORD=renviron-password
 EOF_RENVIRON
 
@@ -56,7 +56,7 @@ run_export_only() {
     --platform "$platform" \
     --env HOME=/home/rdh-test \
     --env MBHI_DB_HOST=export-host \
-    --env 'MBHI_DB_USERNAME=chmcres\export-user' \
+    --env 'MBHI_DB_USERNAME=EXAMPLE\export-user' \
     --env MBHI_DB_PASSWORD=export-password \
     --mount "type=bind,source=$home_dir,target=/home/rdh-test" \
     --mount "type=bind,source=$export_only_dir,target=/export-only" \
@@ -98,7 +98,7 @@ container run --rm \
   --platform "$platform" \
   --env HOME=/home/rdh-test \
   --env MBHI_DB_HOST=export-host \
-  --env 'MBHI_DB_USERNAME=chmcres\export-user' \
+  --env 'MBHI_DB_USERNAME=EXAMPLE\export-user' \
   --env MBHI_DB_PASSWORD=export-password \
   --mount "type=bind,source=$home_dir,target=/home/rdh-test" \
   --mount "type=bind,source=$project_dir,target=/project" \
@@ -109,7 +109,7 @@ container run --rm \
   stopifnot(
     identical(Sys.getenv("RDH_TEST_RENVIRON"), "loaded"),
     identical(Sys.getenv("MBHI_DB_HOST"), "renviron-host"),
-    identical(Sys.getenv("MBHI_DB_USERNAME"), "chmcres\\renviron-user"),
+    identical(Sys.getenv("MBHI_DB_USERNAME"), "EXAMPLE\\renviron-user"),
     identical(Sys.getenv("MBHI_DB_PASSWORD"), "renviron-password"),
     identical(getOption("rdh.test.rprofile"), "loaded"),
     identical(
@@ -123,7 +123,7 @@ container run --rm \
 run_export_only -e '
   stopifnot(
     identical(Sys.getenv("MBHI_DB_HOST"), "export-host"),
-    identical(Sys.getenv("MBHI_DB_USERNAME"), "chmcres\\export-user"),
+    identical(Sys.getenv("MBHI_DB_USERNAME"), "EXAMPLE\\export-user"),
     identical(Sys.getenv("MBHI_DB_PASSWORD"), "export-password")
   )
 '

@@ -68,7 +68,7 @@ export RDH_IMAGE="docker://example.invalid/rdh@sha256:0123456789abcdef"
 export RDH_CACHE_DIR="$cache_dir"
 export RDH_DATA_DIR="$data_dir"
 export MBHI_DB_HOST="host-secret"
-export MBHI_DB_USERNAME='chmcres\user-secret'
+export MBHI_DB_USERNAME='EXAMPLE\user-secret'
 export MBHI_DB_PASSWORD="password-secret"
 export OMOP_DB_HOST="omop-host-secret"
 export OMOP_DB_NAME="omop_cdm"
@@ -115,7 +115,7 @@ rg -Fxq -- '--example' "$runtime_args"
 rg -Fxq -- '--uid' "$runtime_args"
 rg -Fxq -- '--gid' "$runtime_args"
 rg -Fxq 'profile=MBHI' "$runtime_env"
-rg -Fxq 'username=chmcres\user-secret' "$runtime_env"
+rg -Fxq 'username=EXAMPLE\user-secret' "$runtime_env"
 rg -Fxq 'custom=custom-secret' "$runtime_env"
 
 if rg -q 'host-secret|user-secret|password-secret|custom-secret' "$runtime_args"; then
@@ -124,7 +124,7 @@ if rg -q 'host-secret|user-secret|password-secret|custom-secret' "$runtime_args"
 fi
 
 "$binary" --runtime docker Rscript analysis.R
-rg -Fxq 'username=chmcres\user-secret' "$runtime_env"
+rg -Fxq 'username=EXAMPLE\user-secret' "$runtime_env"
 rg -Fxq -- '--user' "$runtime_args"
 if rg -Fxq -- '--uid' "$runtime_args" || rg -Fxq -- '--gid' "$runtime_args"; then
   echo "Docker unexpectedly received Apple container identity flags" >&2
@@ -132,7 +132,7 @@ if rg -Fxq -- '--uid' "$runtime_args" || rg -Fxq -- '--gid' "$runtime_args"; the
 fi
 
 "$binary" --runtime podman Rscript analysis.R
-rg -Fxq 'username=chmcres\user-secret' "$runtime_env"
+rg -Fxq 'username=EXAMPLE\user-secret' "$runtime_env"
 rg -Fxq -- '--userns=keep-id' "$runtime_args"
 if rg -Fxq -- '--user' "$runtime_args"; then
   echo "Podman unexpectedly received Docker's user flag" >&2
@@ -179,7 +179,7 @@ rg -Fxq 'Rscript' "$runtime_args"
 rg -Fxq 'analysis.R' "$runtime_args"
 rg -Fxq 'profile=MBHI' "$runtime_env"
 rg -Fxq 'host=host-secret' "$runtime_env"
-rg -Fxq 'username=chmcres\user-secret' "$runtime_env"
+rg -Fxq 'username=EXAMPLE\user-secret' "$runtime_env"
 rg -Fxq 'custom=custom-secret' "$runtime_env"
 rg -Fxq 'inherited_rlibs=' "$runtime_env"
 rg -Fxq 'inherited_unrelated=' "$runtime_env"

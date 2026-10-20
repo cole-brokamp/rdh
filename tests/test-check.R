@@ -138,13 +138,13 @@ local({
   stopifnot(inherits(condition, "needenv_missing"), identical(condition$missing, required))
 
   Sys.setenv(
-    MBHI_DB_HOST = "tcp:host-secret,1444", MBHI_DB_USERNAME = "chmcres\\user-secret",
+    MBHI_DB_HOST = "tcp:host-secret,1444", MBHI_DB_USERNAME = "EXAMPLE\\user-secret",
     MBHI_DB_PASSWORD = " ;{pa}ss;'\"= word} ", MBHI_DB_NAME = "db;UID=other}"
   )
   messages <- capture.output(check_environment$rdh_check(), type = "message")
   stopifnot(
     identical(state$connect_arguments$Server, "{host-secret,1444}"),
-    identical(state$connect_arguments$UID, "{chmcres\\user-secret}"),
+    identical(state$connect_arguments$UID, "{EXAMPLE\\user-secret}"),
     identical(state$connect_arguments$PWD, "{ ;{pa}ss;'\"= word} }"),
     identical(state$connect_arguments$Database, "{db;UID=other}}"),
     "authentication: NTLM" %in% messages,
@@ -187,13 +187,13 @@ local({
 
   Sys.setenv(
     OMOP_DB_HOST = "host-secret\\instance", OMOP_DB_NAME = "omop_cdm",
-    OMOP_DB_USERNAME = "chmcres\\omop-user-secret", OMOP_DB_PASSWORD = "omop-password-secret"
+    OMOP_DB_USERNAME = "EXAMPLE\\omop-user-secret", OMOP_DB_PASSWORD = "omop-password-secret"
   )
   con <- helper_environment$rdh_connect("omop")
   stopifnot(
     identical(state$connect_arguments$Server, "{host-secret\\instance}"),
     identical(state$connect_arguments$Database, "{omop_cdm}"),
-    identical(state$connect_arguments$UID, "{chmcres\\omop-user-secret}")
+    identical(state$connect_arguments$UID, "{EXAMPLE\\omop-user-secret}")
   )
   DBI::dbDisconnect(con)
   Sys.setenv(RDH_DB_PROFILE = "OMOP")
