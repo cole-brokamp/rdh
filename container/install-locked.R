@@ -48,7 +48,9 @@ pak::pkg_install(
   dependencies = FALSE
 )
 
-installed <- installed.packages(lib.loc = site_library)
+# pak reuses recommended packages from R when their versions already match.
+# Check the site library first, then those unchanged packages in the base image.
+installed <- installed.packages(lib.loc = c(site_library, .Library))
 missing <- setdiff(package_names, rownames(installed))
 if (length(missing)) {
   stop("locked packages were not installed: ", paste(missing, collapse = ", "), call. = FALSE)
@@ -68,7 +70,9 @@ if (length(mismatched)) {
 manifest <- data.frame(
   Package = package_names,
   Version = unname(installed_versions),
-  Repository = rep(ppm_repo, length(package_names)),
+  Repository = ifelse(
+    installed[package_names, "LibPath"] == site_library, ppm_repo, "R base image"
+  ),
   stringsAsFactors = FALSE
 )
 manifest <- manifest[order(manifest$Package), , drop = FALSE]

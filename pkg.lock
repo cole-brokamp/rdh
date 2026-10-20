@@ -2,7 +2,7 @@
   "lockfile_version": 1,
   "os": "Ubuntu 24.04 LTS",
   "r_version": "R version 4.6.1 (2026-06-24)",
-  "platform": "x86_64-pc-linux-gnu",
+  "platform": "aarch64-unknown-linux-gnu",
   "packages": [
     {
       "ref": "DBI",
@@ -231,11 +231,188 @@
     {
       "ref": "odbc",
       "package": "odbc",
-      "version": "1.7.0",
+      "version": "1.7.2",
       "type": "standard",
       "direct": true,
       "binary": false,
       "dependencies": ["bit64", "blob", "cli", "DBI", "hms", "lifecycle", "Rcpp", "rlang", "vctrs"],
+      "deps": [
+        {
+          "ref": "bit64",
+          "type": "imports",
+          "package": "bit64",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "blob",
+          "type": "imports",
+          "package": "blob",
+          "op": ">=",
+          "version": "1.2.0"
+        },
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "connectcreds",
+          "type": "suggests",
+          "package": "connectcreds",
+          "op": ">=",
+          "version": "0.2.0"
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "DBI",
+          "type": "imports",
+          "package": "DBI",
+          "op": ">=",
+          "version": "1.0.0"
+        },
+        {
+          "ref": "DBItest",
+          "type": "suggests",
+          "package": "DBItest",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "hms",
+          "type": "imports",
+          "package": "hms",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "httr2",
+          "type": "suggests",
+          "package": "httr2",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lifecycle",
+          "type": "imports",
+          "package": "lifecycle",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "magrittr",
+          "type": "suggests",
+          "package": "magrittr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "methods",
+          "type": "imports",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "paws.common",
+          "type": "suggests",
+          "package": "paws.common",
+          "op": ">=",
+          "version": "0.7.1"
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.2.0"
+        },
+        {
+          "ref": "Rcpp",
+          "type": "imports",
+          "package": "Rcpp",
+          "op": ">=",
+          "version": "0.12.11"
+        },
+        {
+          "ref": "Rcpp",
+          "type": "linkingto",
+          "package": "Rcpp",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.1.0"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "RSQLite",
+          "type": "suggests",
+          "package": "RSQLite",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "snowflakeauth",
+          "type": "suggests",
+          "package": "snowflakeauth",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.0"
+        },
+        {
+          "ref": "tibble",
+          "type": "suggests",
+          "package": "tibble",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "vctrs",
+          "type": "imports",
+          "package": "vctrs",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
       "vignettes": false,
       "needscompilation": true,
       "metadata": {
@@ -244,21 +421,35 @@
         "RemoteRef": "odbc",
         "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
         "RemotePkgPlatform": "source",
-        "RemoteSha": "1.7.0"
+        "RemoteSha": "1.7.2"
       },
-      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/odbc_1.7.0.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/odbc/odbc_1.7.0.tar.gz"],
-      "target": "src/contrib/odbc_1.7.0.tar.gz",
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/odbc_1.7.2.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/odbc/odbc_1.7.2.tar.gz"],
+      "target": "src/contrib/odbc_1.7.2.tar.gz",
       "platform": "source",
       "rversion": "*",
       "directpkg": true,
       "license": "MIT + file LICENSE",
-      "sha256": "7eb4dc2056d85015af64c4bb4bf45c84cb29702f9b9860d631c622dd5e6f7d9e",
-      "filesize": 367765,
+      "sha256": "7efbb3f58d00f745153e7d235427939ef0e3e7430433e484187ddba756b109ec",
+      "filesize": 390950,
       "dep_types": ["Depends", "Imports", "LinkingTo"],
       "params": [],
       "install_args": [],
       "repotype": "cran",
-      "sysreqs": "GNU make, An ODBC3 driver manager and drivers."
+      "sysreqs": "GNU make, An ODBC3 driver manager and drivers.",
+      "sysreqs_packages": [
+        {
+          "sysreq": "gnumake",
+          "packages": ["make"],
+          "pre_install": {},
+          "post_install": {}
+        },
+        {
+          "sysreq": "odbc",
+          "packages": ["unixodbc-dev"],
+          "pre_install": {},
+          "post_install": {}
+        }
+      ]
     },
     {
       "ref": "pkgconfig",
@@ -871,11 +1062,118 @@
     {
       "ref": "nanoparquet",
       "package": "nanoparquet",
-      "version": "0.5.1",
+      "version": "0.5.2",
       "type": "standard",
       "direct": true,
       "binary": false,
       "dependencies": [],
+      "deps": [
+        {
+          "ref": "arrow",
+          "type": "suggests",
+          "package": "arrow",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "bit64",
+          "type": "suggests",
+          "package": "bit64",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "blob",
+          "type": "suggests",
+          "package": "blob",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "DBI",
+          "type": "suggests",
+          "package": "DBI",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "duckdb",
+          "type": "suggests",
+          "package": "duckdb",
+          "op": ">=",
+          "version": "1.4.0"
+        },
+        {
+          "ref": "hms",
+          "type": "suggests",
+          "package": "hms",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "mockery",
+          "type": "suggests",
+          "package": "mockery",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "pillar",
+          "type": "suggests",
+          "package": "pillar",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "processx",
+          "type": "suggests",
+          "package": "processx",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.0.0"
+        },
+        {
+          "ref": "rprojroot",
+          "type": "suggests",
+          "package": "rprojroot",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "spelling",
+          "type": "suggests",
+          "package": "spelling",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "tzdb",
+          "type": "suggests",
+          "package": "tzdb",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
       "vignettes": false,
       "needscompilation": true,
       "metadata": {
@@ -884,21 +1182,22 @@
         "RemoteRef": "nanoparquet",
         "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
         "RemotePkgPlatform": "source",
-        "RemoteSha": "0.5.1"
+        "RemoteSha": "0.5.2"
       },
-      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/nanoparquet_0.5.1.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/nanoparquet/nanoparquet_0.5.1.tar.gz"],
-      "target": "src/contrib/nanoparquet_0.5.1.tar.gz",
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/nanoparquet_0.5.2.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/nanoparquet/nanoparquet_0.5.2.tar.gz"],
+      "target": "src/contrib/nanoparquet_0.5.2.tar.gz",
       "platform": "source",
       "rversion": "*",
       "directpkg": true,
       "license": "MIT + file LICENSE",
-      "sha256": "4189514992ee1b61a23a2d116f3c44ccfb0caf85b98e84e2452658c752689571",
-      "filesize": 1191803,
+      "sha256": "c9a462cf175f88a02c507e9b53a0c41be0a9c27cd71b3e7cddc61858541094b0",
+      "filesize": 1198131,
       "dep_types": ["Depends", "Imports", "LinkingTo"],
       "params": [],
       "install_args": [],
       "repotype": "cran",
-      "sysreqs": ""
+      "sysreqs": "",
+      "sysreqs_packages": {}
     },
     {
       "ref": "bit64",
@@ -967,11 +1266,216 @@
     {
       "ref": "renv",
       "package": "renv",
-      "version": "1.2.4",
+      "version": "1.3.1",
       "type": "standard",
       "direct": true,
       "binary": false,
       "dependencies": [],
+      "deps": [
+        {
+          "ref": "BiocManager",
+          "type": "suggests",
+          "package": "BiocManager",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cli",
+          "type": "suggests",
+          "package": "cli",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "compiler",
+          "type": "suggests",
+          "package": "compiler",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cpp11",
+          "type": "suggests",
+          "package": "cpp11",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "curl",
+          "type": "suggests",
+          "package": "curl",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "devtools",
+          "type": "suggests",
+          "package": "devtools",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "generics",
+          "type": "suggests",
+          "package": "generics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "gitcreds",
+          "type": "suggests",
+          "package": "gitcreds",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "jsonlite",
+          "type": "suggests",
+          "package": "jsonlite",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "jsonvalidate",
+          "type": "suggests",
+          "package": "jsonvalidate",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "miniUI",
+          "type": "suggests",
+          "package": "miniUI",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "modules",
+          "type": "suggests",
+          "package": "modules",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "packrat",
+          "type": "suggests",
+          "package": "packrat",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "pak",
+          "type": "suggests",
+          "package": "pak",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "pkgload",
+          "type": "suggests",
+          "package": "pkgload",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R6",
+          "type": "suggests",
+          "package": "R6",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "remotes",
+          "type": "suggests",
+          "package": "remotes",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "reticulate",
+          "type": "suggests",
+          "package": "reticulate",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rstudioapi",
+          "type": "suggests",
+          "package": "rstudioapi",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "shiny",
+          "type": "suggests",
+          "package": "shiny",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "uuid",
+          "type": "suggests",
+          "package": "uuid",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "waldo",
+          "type": "suggests",
+          "package": "waldo",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "webfakes",
+          "type": "suggests",
+          "package": "webfakes",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "yaml",
+          "type": "suggests",
+          "package": "yaml",
+          "op": "",
+          "version": ""
+        }
+      ],
       "vignettes": false,
       "needscompilation": false,
       "metadata": {
@@ -980,21 +1484,22 @@
         "RemoteRef": "renv",
         "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
         "RemotePkgPlatform": "source",
-        "RemoteSha": "1.2.4"
+        "RemoteSha": "1.3.1"
       },
-      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/renv_1.2.4.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/renv/renv_1.2.4.tar.gz"],
-      "target": "src/contrib/renv_1.2.4.tar.gz",
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/renv_1.3.1.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/renv/renv_1.3.1.tar.gz"],
+      "target": "src/contrib/renv_1.3.1.tar.gz",
       "platform": "source",
       "rversion": "*",
       "directpkg": true,
       "license": "MIT + file LICENSE",
-      "sha256": "e63c637dc785d55848d9dbc6c9599378103803efd47c1f3f1f82057c00575e8c",
-      "filesize": 1438389,
+      "sha256": "e16281908ddf0ed6f8f6f8ad3f2cc4788af6de04c1ab223517aa1cc9acb30731",
+      "filesize": 1571942,
       "dep_types": ["Depends", "Imports", "LinkingTo"],
       "params": [],
       "install_args": [],
       "repotype": "cran",
-      "sysreqs": ""
+      "sysreqs": "",
+      "sysreqs_packages": {}
     },
     {
       "ref": "needenv@0.1.0",
@@ -1024,6 +1529,556 @@
       "license": "MIT + file LICENSE",
       "sha256": "809d055fb58a9d7a78fef69eb40dd72b8970399cbaeba54ffbad9420d8efb3ec",
       "filesize": 7185,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "digest",
+      "package": "digest",
+      "version": "0.6.39",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.3.0"
+        },
+        {
+          "ref": "rbenchmark",
+          "type": "suggests",
+          "package": "rbenchmark",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "simplermarkdown",
+          "type": "suggests",
+          "package": "simplermarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "tinytest",
+          "type": "suggests",
+          "package": "tinytest",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "digest",
+        "RemoteRef": "digest",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "0.6.39"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/digest_0.6.39.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/digest/digest_0.6.39.tar.gz"],
+      "target": "src/contrib/digest_0.6.39.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL (>= 2)",
+      "sha256": "8bf048b49b2d17077138fae758bda56bbd53278d9437f2fdeaedf979c90a13c9",
+      "filesize": 236629,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "boot",
+      "package": "boot",
+      "version": "1.3-32",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "boot",
+        "RemoteRef": "boot",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "1.3-32"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/boot_1.3-32.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/boot/boot_1.3-32.tar.gz"],
+      "target": "src/contrib/boot_1.3-32.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "Unlimited",
+      "sha256": "30e3070505135f767a252b36756eae89f1f9842dce2d6fe7edd3b2e41cf446f1",
+      "filesize": 239086,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "class",
+      "package": "class",
+      "version": "7.3-24",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "class",
+        "RemoteRef": "class",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "7.3-24"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/class_7.3-24.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/class/class_7.3-24.tar.gz"],
+      "target": "src/contrib/class_7.3-24.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL-2 | GPL-3",
+      "sha256": "e8c66e57e3f4214ced6fff135a0d9b55f7bd7d6c947b219063de57b275c507e1",
+      "filesize": 22115,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "cluster",
+      "package": "cluster",
+      "version": "2.1.8.3",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "cluster",
+        "RemoteRef": "cluster",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "2.1.8.3"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/cluster_2.1.8.3.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/cluster/cluster_2.1.8.3.tar.gz"],
+      "target": "src/contrib/cluster_2.1.8.3.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL (>= 2)",
+      "sha256": "d7e28924e1a2f80aca33714b32f44d213f71a7f728bdd317e79d3d6cee86e648",
+      "filesize": 370932,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "codetools",
+      "package": "codetools",
+      "version": "0.2-20",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "codetools",
+        "RemoteRef": "codetools",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "0.2-20"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/codetools_0.2-20.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/codetools/codetools_0.2-20.tar.gz"],
+      "target": "src/contrib/codetools_0.2-20.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL",
+      "sha256": "345d039d3a026d32a679f6eae894ffd7796d3351f8dbcdba4b8e55096ad1bee4",
+      "filesize": 38540,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "foreign",
+      "package": "foreign",
+      "version": "0.8-92",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "foreign",
+        "RemoteRef": "foreign",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "0.8-92"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/foreign_0.8-92.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/foreign/foreign_0.8-92.tar.gz"],
+      "target": "src/contrib/foreign_0.8-92.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL (>= 2)",
+      "sha256": "115d28ef3848af6ba8ff9508e0ed7e5eaf050bb8c289351bd4f6f90ad5c1b515",
+      "filesize": 370091,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "KernSmooth",
+      "package": "KernSmooth",
+      "version": "2.23-27",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "KernSmooth",
+        "RemoteRef": "KernSmooth",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "2.23-27"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/KernSmooth_2.23-27.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/KernSmooth/KernSmooth_2.23-27.tar.gz"],
+      "target": "src/contrib/KernSmooth_2.23-27.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "Unlimited",
+      "sha256": "39b22808b96aa01c5e13339d24ce07840c91c8fc9d64d717aaed4e883cf8f6da",
+      "filesize": 27737,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "lattice",
+      "package": "lattice",
+      "version": "0.23-1",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "lattice",
+        "RemoteRef": "lattice",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "0.23-1"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/lattice_0.23-1.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/lattice/lattice_0.23-1.tar.gz"],
+      "target": "src/contrib/lattice_0.23-1.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL (>= 2)",
+      "sha256": "0f3c1e44fd35c82728bc6c82fdf5569f5644f85942256d88ed5fbd24f33a49ea",
+      "filesize": 682445,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "MASS",
+      "package": "MASS",
+      "version": "7.3-66",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "MASS",
+        "RemoteRef": "MASS",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "7.3-66"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/MASS_7.3-66.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/MASS/MASS_7.3-66.tar.gz"],
+      "target": "src/contrib/MASS_7.3-66.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL-2 | GPL-3",
+      "sha256": "d89fabc9b34a3be00040b68ac15c5718527746c3aac1772dccf27ad4861ac197",
+      "filesize": 511079,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "Matrix",
+      "package": "Matrix",
+      "version": "1.7-6",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": ["lattice"],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "Matrix",
+        "RemoteRef": "Matrix",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "1.7-6"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/Matrix_1.7-6.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/Matrix/Matrix_1.7-6.tar.gz"],
+      "target": "src/contrib/Matrix_1.7-6.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL (>= 2) | file LICENCE",
+      "sha256": "1e1c709289d63ca814d9c2ddc85e44c179dba628f137350e3ca1e903d94cbabc",
+      "filesize": 2531018,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "mgcv",
+      "package": "mgcv",
+      "version": "1.9-4",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": ["Matrix", "nlme"],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "mgcv",
+        "RemoteRef": "mgcv",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "1.9-4"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/mgcv_1.9-4.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/mgcv/mgcv_1.9-4.tar.gz"],
+      "target": "src/contrib/mgcv_1.9-4.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL (>= 2)",
+      "sha256": "32b5b6f8ed2981df59b0610375171c1ae2b320359a79e631bd838fea1bdd0ed2",
+      "filesize": 1166885,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "nlme",
+      "package": "nlme",
+      "version": "3.1-171",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": ["lattice"],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "nlme",
+        "RemoteRef": "nlme",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "3.1-171"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/nlme_3.1-171.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/nlme/nlme_3.1-171.tar.gz"],
+      "target": "src/contrib/nlme_3.1-171.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL (>= 2)",
+      "sha256": "af89deea1e40ddc5a35258eaa54b1c4697f5c13ba9a0ab923612275000adcea2",
+      "filesize": 853273,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "nnet",
+      "package": "nnet",
+      "version": "7.3-21",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "nnet",
+        "RemoteRef": "nnet",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "7.3-21"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/nnet_7.3-21.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/nnet/nnet_7.3-21.tar.gz"],
+      "target": "src/contrib/nnet_7.3-21.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL-2 | GPL-3",
+      "sha256": "12c942a69695780beab92019660e0d380a273d7e5cc7ae64df787509a0a8a585",
+      "filesize": 31921,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "rpart",
+      "package": "rpart",
+      "version": "4.1.27",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "rpart",
+        "RemoteRef": "rpart",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "4.1.27"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/rpart_4.1.27.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/rpart/rpart_4.1.27.tar.gz"],
+      "target": "src/contrib/rpart_4.1.27.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL-2 | GPL-3",
+      "sha256": "053f059bc82e9ff1c9c72617dcb6a0208e7db956cc98e9df17e28169cc72ce5b",
+      "filesize": 624623,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "spatial",
+      "package": "spatial",
+      "version": "7.3-19",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": [],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "spatial",
+        "RemoteRef": "spatial",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "7.3-19"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/spatial_7.3-19.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/spatial/spatial_7.3-19.tar.gz"],
+      "target": "src/contrib/spatial_7.3-19.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "GPL-2 | GPL-3",
+      "sha256": "4a4d2ec131b1dcc33e522f6084fed34251f435c2729c9714d8c1bdf64a457cc9",
+      "filesize": 47828,
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": ""
+    },
+    {
+      "ref": "survival",
+      "package": "survival",
+      "version": "3.8-12",
+      "type": "standard",
+      "direct": true,
+      "binary": false,
+      "dependencies": ["Matrix"],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "survival",
+        "RemoteRef": "survival",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemotePkgPlatform": "source",
+        "RemoteSha": "3.8-12"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/latest/src/contrib/survival_3.8-12.tar.gz", "https://packagemanager.posit.co/cran/latest/src/contrib/Archive/survival/survival_3.8-12.tar.gz"],
+      "target": "src/contrib/survival_3.8-12.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "LGPL (>= 2)",
+      "sha256": "8bf8faa69f872daf2c3158927188cbd2f11409702367049729e46b2d8da1078f",
+      "filesize": 8469379,
       "dep_types": ["Depends", "Imports", "LinkingTo"],
       "params": [],
       "install_args": [],

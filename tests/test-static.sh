@@ -31,6 +31,17 @@ jq -e --arg r_version "$R_VERSION" '
   )
 ' pkg.lock >/dev/null
 
+documented_packages="$(
+  awk '/^## Bundled R package versions$/ { in_section = 1; next }
+       in_section && /^## / { exit }
+       in_section && /^\| / && !/^\| (Package|---) / { print }' README.md | sort
+)"
+locked_packages="$(jq -r '.packages[] | "| \(.package) | \(.version) |"' pkg.lock | sort)"
+if [[ "$documented_packages" != "$locked_packages" ]]; then
+  echo "README package versions differ from pkg.lock" >&2
+  exit 1
+fi
+
 if rg -n 'cloud[.]r-project[.]org|r-universe[.]dev' \
   Containerfile container pkg.lock; then
   echo "a non-PPM R repository is configured" >&2

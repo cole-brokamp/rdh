@@ -125,6 +125,71 @@ It will remain available the next time you use `rdh`:
 install.packages("ggplot2")
 ```
 
+## Bundled R package versions
+
+The container recipe in this checkout freezes all 48 packages below to the latest versions available from [Posit Public Package Manager](https://packagemanager.posit.co/cran/latest) on October 20, 2026.
+This includes direct packages, their required dependencies, and all 15 recommended packages distributed with R.
+The committed `pkg.lock` fixes each version, so rebuilding against the `latest` repository does not upgrade these packages.
+The build checks every installed version against the lock and writes `/opt/rdh/installed-packages.csv` inside the image.
+
+| Package | Version |
+| --- | --- |
+| bit | 4.6.0 |
+| bit64 | 4.8.6 |
+| blob | 1.3.0 |
+| boot | 1.3-32 |
+| class | 7.3-24 |
+| cli | 3.6.6 |
+| cluster | 2.1.8.3 |
+| codetools | 0.2-20 |
+| cpp11 | 0.5.5 |
+| DBI | 1.3.0 |
+| dbplyr | 2.6.0 |
+| digest | 0.6.39 |
+| dplyr | 1.2.1 |
+| foreign | 0.8-92 |
+| generics | 0.1.4 |
+| glue | 1.8.1 |
+| hms | 1.1.4 |
+| KernSmooth | 2.23-27 |
+| lattice | 0.23-1 |
+| lifecycle | 1.0.5 |
+| magrittr | 2.0.5 |
+| MASS | 7.3-66 |
+| Matrix | 1.7-6 |
+| mgcv | 1.9-4 |
+| nanoparquet | 0.5.2 |
+| needenv | 0.1.0 |
+| nlme | 3.1-171 |
+| nnet | 7.3-21 |
+| odbc | 1.7.2 |
+| pak | 0.11.1 |
+| pillar | 1.11.1 |
+| pkgconfig | 2.0.3 |
+| purrr | 1.2.2 |
+| R6 | 2.6.1 |
+| Rcpp | 1.1.2 |
+| renv | 1.3.1 |
+| rlang | 1.3.0 |
+| rpart | 4.1.27 |
+| spatial | 7.3-19 |
+| stringi | 1.8.9 |
+| stringr | 1.6.0 |
+| survival | 3.8-12 |
+| tibble | 3.3.1 |
+| tidyr | 1.3.2 |
+| tidyselect | 1.2.1 |
+| utf8 | 1.2.6 |
+| vctrs | 0.7.3 |
+| withr | 3.0.3 |
+
+R's base packages (`base`, `compiler`, `datasets`, `graphics`, `grDevices`, `grid`, `methods`, `parallel`, `splines`, `stats`, `stats4`, `tcltk`, `tools`, and `utils`) each use version 4.6.1, supplied by `posit/r-base:4.6.1-noble`.
+To inspect the frozen package manifest in your container:
+
+```sh
+rdh Rscript -e 'print(read.csv("/opt/rdh/installed-packages.csv"), row.names = FALSE)'
+```
+
 ## Access additional directories with Apptainer
 
 `rdh` binds your current project directory and its persistent R package directory automatically.
@@ -176,7 +241,7 @@ rdh --env MY_SETTING Rscript analysis.R
 ## Technical notes
 
 - The current release is `2026.09.3`.
-- The environment uses R 4.6.1, Ubuntu's FreeTDS ODBC package `tdsodbc` version `1.3.17+ds-2build3`, and common data packages including DBI, odbc, dplyr, dbplyr, nanoparquet, bit64, pak, and renv.
+- The environment uses R 4.6.1, Ubuntu's FreeTDS ODBC package `tdsodbc` version `1.3.17+ds-2build3`, and common data packages including DBI, odbc, dplyr, dbplyr, nanoparquet, bit64, digest, pak, and renv.
 - Connections use TDS 7.4, NTLMv2, required encryption, UTF-8, and `integer64` results for SQL Server `bigint` values.
 - Certificate trust remains as before: the server certificate is accepted without CA validation.
 - Released executables are available for macOS and Linux on both AMD64 and ARM64.
