@@ -211,4 +211,6 @@ if RDH_IMAGE="$local_sif" "$binary" --runtime container pull >/dev/null 2>&1; th
   exit 1
 fi
 
+python3 "$repo_dir/tests/test-update-notice.py" "$binary"
+
 echo "Rust CLI integration checks passed"

@@ -35,6 +35,24 @@ curl -fsSL https://raw.githubusercontent.com/cole-brokamp/rdh/main/install.sh \
 
 You can also download an archive directly from [GitHub Releases](https://github.com/cole-brokamp/rdh/releases).
 
+## Updates
+
+To subscribe to release announcements, open the [GitHub repository](https://github.com/cole-brokamp/rdh), select **Watch → Custom → Releases**, and save your selection.
+Choose email or web notifications in your [GitHub notification settings](https://github.com/settings/notifications).
+
+When you start interactive R, `rdh` checks for a newer release at most once every 24 hours and prints a notice with release notes and the update command.
+The check uses `curl`, waits at most two seconds, and silently skips network failures or unavailable tools.
+Scripts, batch jobs, and redirected sessions do not check for updates.
+Set `RDH_NO_UPDATE_CHECK=1` in your host shell to disable the check:
+
+```sh
+export RDH_NO_UPDATE_CHECK=1
+```
+
+To upgrade, rerun the installation command above, using the same `RDH_INSTALL_DIR` or `--install-dir` if you chose a custom location.
+`rdh pull` downloads the image linked to your installed executable; rerunning the installer upgrades the executable and selects the new release's image.
+Updates are installed only when you choose to run the installer.
+
 ## Connect with NTLM
 
 Use NTLM with your organization's username and password, including your domain in your username.

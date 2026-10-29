@@ -1,5 +1,6 @@
 mod cli;
 mod runtime;
+mod update;
 
 use cli::{Action, Cli, RuntimeRequest};
 use runtime::RuntimeKind;
@@ -40,6 +41,7 @@ Configuration:
   RDH_CACHE_DIR    Override the Apptainer image and conversion cache.
   RDH_DATA_DIR     Override the persistent host package-library directory.
   RDH_DB_PROFILE   Database profile selected by --db (default: MBHI).
+  RDH_NO_UPDATE_CHECK  Set to 1 to disable interactive update notices.
 
 The selected <PROFILE>_DB_HOST, <PROFILE>_DB_NAME, <PROFILE>_DB_USERNAME,
 and <PROFILE>_DB_PASSWORD variables are forwarded by name. Additional exported
@@ -85,6 +87,7 @@ fn run() -> Result<i32, String> {
         }
         Action::Execute(payload) => {
             let forwarded = forwarded_environment(&cli)?;
+            update::notify(payload);
             let status = if selected_runtime == RuntimeKind::Apptainer {
                 let image_path = prepare_apptainer_image(&image)?;
                 run_apptainer(&image_path, payload, &forwarded)?
