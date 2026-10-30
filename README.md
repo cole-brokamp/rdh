@@ -258,7 +258,7 @@ rdh --env MY_SETTING Rscript analysis.R
 
 ## Technical notes
 
-- The current release is `2026.10.0`.
+- The current release is `2026.10.1`.
 - The environment uses R 4.6.1, Ubuntu's FreeTDS ODBC package `tdsodbc` version `1.3.17+ds-2build3`, and common data packages including DBI, odbc, dplyr, dbplyr, nanoparquet, bit64, digest, pak, and renv.
 - Connections use TDS 7.4, NTLMv2, required encryption, UTF-8, and `integer64` results for SQL Server `bigint` values.
 - Certificate trust remains as before: the server certificate is accepted without CA validation.
